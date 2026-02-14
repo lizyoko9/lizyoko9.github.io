@@ -1,0 +1,47 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+// Supports weights 300-800
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/500.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
+
+// Supports weights 100-900
+import '@fontsource/noto-sans-sc/400.css';
+import '@fontsource/noto-sans-sc/500.css';
+import '@fontsource/noto-sans-sc/700.css';
+
+// Supports weights 400-700
+import '@fontsource/sometype-mono/400.css';
+import '@fontsource/sometype-mono/500.css';
+import '@fontsource/sometype-mono/600.css';
+import '@fontsource/sometype-mono/700.css';
+
+interface Props {
+	title: string;
+    description?: string;
+}
+
+const { title, description = 'A programmer blog' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN" class="scroll-smooth">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+        <meta name="description" content={description} />
+		<title>{title}</title>
+	</head>
+	<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans">
+		<Header />
+		<main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			<slot />
+		</main>
+		<Footer />
+	</body>
+</html>

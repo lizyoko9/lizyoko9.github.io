@@ -1,0 +1,47 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<Layout title="首页 | Lizlog">
+    <div class="py-12 md:py-20 text-center">
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
+            Hello, I'm <span class="text-primary-600 dark:text-primary-400">lizyoko</span>
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            热爱编程, 探索技术. 这是我的个人博客, 分享关于开发、设计和生活的思考.
+        </p>
+    </div>
+
+    <section>
+        <h2 class="text-2xl font-bold mb-8 pb-2 border-b border-gray-200 dark:border-gray-800">最新文章</h2>
+        <div class="grid gap-8">
+            {posts.map((post) => (
+                <article class="flex flex-col space-y-2">
+                    <div class="text-gray-500 dark:text-gray-400 text-sm font-mono">
+                        {post.data.pubDate.toLocaleDateString('zh-CN', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                        })}
+                    </div>
+                    <h3 class="text-xl font-bold">
+                        <a href={`/blog/${post.slug}/`} class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                            {post.data.title}
+                        </a>
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400 line-clamp-3">
+                        {post.data.description}
+                    </p>
+                    <a href={`/blog/${post.slug}/`} class="text-primary-600 dark:text-primary-400 hover:underline text-sm font-medium inline-flex items-center">
+                        阅读更多 <span class="ml-1">&rarr;</span>
+                    </a>
+                </article>
+            ))}
+        </div>
+    </section>
+</Layout>

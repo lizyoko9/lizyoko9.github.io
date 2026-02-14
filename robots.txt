@@ -1,3 +1,0 @@
-User-agent: *
-Disallow:
-Sitemap: https://lizyoko9.github.io/sitemap.xml
