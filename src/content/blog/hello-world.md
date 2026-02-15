@@ -2,7 +2,7 @@
 title: 'Hello, World!'
 description: '这是我的第一篇博客文章，测试 Markdown 渲染。'
 pubDate: '2026-02-15'
-heroImage: '/blog-placeholder-1.jpg'
+heroImage: '/images/helloworld.png'
 ---
 
 # Hello, World!
