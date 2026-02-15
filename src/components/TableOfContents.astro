@@ -1,0 +1,66 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+// 仅展示 h2 和 h3，避免层级过深
+const toc = headings.filter((h) => h.depth > 1 && h.depth <= 3);
+---
+
+<nav class="toc-container" aria-label="Table of Contents">
+    <h2 class="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+        目录
+    </h2>
+    {toc.length > 0 ? (
+        <ul class="space-y-2 text-sm border-l-2 border-gray-100 dark:border-gray-800">
+            {toc.map((heading) => (
+                <li class={`pl-3 ${heading.depth === 3 ? 'ml-4' : ''}`}>
+                    <a
+                        href={`#${heading.slug}`}
+                        class="block text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 transition-colors duration-200"
+                    >
+                        {heading.text}
+                    </a>
+                </li>
+            ))}
+        </ul>
+    ) : (
+        <p class="text-sm text-gray-400 italic">本文暂无目录</p>
+    )}
+</nav>
+
+<script>
+    // 简单的滚动高亮逻辑
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            const id = entry.target.getAttribute('id');
+            const link = document.querySelector(`.toc-container a[href="#${id}"]`);
+            if (!link) return;
+
+            if (entry.intersectionRatio > 0) {
+                // 移除其他链接的高亮
+                document.querySelectorAll('.toc-container a').forEach((a) => {
+                    a.classList.remove('text-primary-600', 'font-medium', 'border-l-2', 'border-primary-600', '-ml-[14px]', 'pl-[12px]');
+                    a.classList.add('text-gray-500', 'dark:text-gray-400');
+                });
+                
+                // 添加当前链接高亮
+                link.classList.remove('text-gray-500', 'dark:text-gray-400');
+                link.classList.add('text-primary-600', 'font-medium', 'dark:text-primary-400');
+                
+                // 给父级 li 添加左侧边框高亮效果 (可选优化)
+                // 这里简单起见只变色
+            }
+        });
+    });
+
+    // 监听所有 h2, h3
+    document.querySelectorAll('article h2, article h3').forEach((h) => {
+        observer.observe(h);
+    });
+</script>

@@ -22,9 +22,10 @@ import '@fontsource/sometype-mono/700.css';
 interface Props {
 	title: string;
     description?: string;
+    wide?: boolean;
 }
 
-const { title, description = 'A programmer blog' } = Astro.props;
+const { title, description = 'A programmer blog', wide = false } = Astro.props;
 ---
 
 <!doctype html>
@@ -39,7 +40,7 @@ const { title, description = 'A programmer blog' } = Astro.props;
 	</head>
 	<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans">
 		<Header />
-		<main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<main class={`flex-grow w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 ${wide ? 'max-w-6xl' : 'max-w-4xl'}`}>
 			<slot />
 		</main>
 		<Footer />
