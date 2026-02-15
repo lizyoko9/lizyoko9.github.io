@@ -22,7 +22,34 @@ export default {
 					900: '#1e3a8a',
 					950: '#172554',
 				},
-			}
+			},
+			typography: (theme) => ({
+				DEFAULT: {
+					css: {
+						'code::before': {
+							content: '""',
+						},
+						'code::after': {
+							content: '""',
+						},
+						code: {
+							color: theme('colors.primary.600'),
+							backgroundColor: theme('colors.gray.100'),
+							padding: '0.25rem 0.375rem',
+							borderRadius: '0.25rem',
+							fontWeight: '500',
+						},
+					},
+				},
+				invert: {
+					css: {
+						code: {
+							color: theme('colors.primary.400'),
+							backgroundColor: theme('colors.gray.800'),
+						},
+					},
+				},
+			}),
 		},
 	},
 	plugins: [
