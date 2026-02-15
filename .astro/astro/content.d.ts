@@ -1,4 +1,15 @@
 declare module 'astro:content' {
+	interface Render {
+		'.mdx': Promise<{
+			Content: import('astro').MDXContent;
+			headings: import('astro').MarkdownHeading[];
+			remarkPluginFrontmatter: Record<string, any>;
+			components: import('astro').MDXInstance<{}>['components'];
+		}>;
+	}
+}
+
+declare module 'astro:content' {
 	interface RenderResult {
 		Content: import('astro/runtime/server/index.js').AstroComponentFactory;
 		headings: import('astro').MarkdownHeading[];
@@ -141,9 +152,23 @@ declare module 'astro:content' {
 
 	type ContentEntryMap = {
 		"blog": {
+"cuda-programming-1.md": {
+	id: "cuda-programming-1.md";
+  slug: "cuda-programming-1";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
 "hello-world.md": {
 	id: "hello-world.md";
   slug: "hello-world";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"pytorcha-cond-where.md": {
+	id: "pytorcha-cond-where.md";
+  slug: "pytorcha-cond-where";
   body: string;
   collection: "blog";
   data: InferEntrySchema<"blog">

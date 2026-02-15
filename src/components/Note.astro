@@ -1,0 +1,30 @@
+---
+interface Props {
+  type?: 'info' | 'warning' | 'hint';
+  title?: string;
+}
+
+const { type = 'info', title } = Astro.props;
+
+const styles = {
+  info: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-200',
+  warning: 'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/30 dark:border-yellow-800 dark:text-yellow-200',
+  hint: 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/30 dark:border-green-800 dark:text-green-200',
+};
+
+const icons = {
+  info: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>`,
+  warning: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>`,
+  hint: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-2.072-4-2.072-5.5a3.952 3.952 0 0 1 3.161-3.951 1 1 0 0 1 4.905 4.051c0 2.5-2 3.5-2 6a2.5 2.5 0 0 0 1 5.5V19a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-5a2 2 0 0 0-2-2 2.5 2.5 0 0 1 0-5c0-1 .5-2 1-3"></path><path d="M9.5 19h5"></path></svg>`
+};
+---
+
+<div class={`note-block not-prose p-4 rounded-lg border text-sm my-6 xl:float-right xl:clear-right xl:mr-[-18rem] xl:w-64 xl:my-0 ${styles[type]}`}>
+  <div class="flex items-center gap-2 mb-2 font-semibold">
+    <span set:html={icons[type]} />
+    {title || type.toUpperCase()}
+  </div>
+  <div class="whitespace-pre-wrap">
+    <slot />
+  </div>
+</div>

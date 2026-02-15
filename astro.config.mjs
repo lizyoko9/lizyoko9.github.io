@@ -1,8 +1,9 @@
 import { defineConfig } from "astro/config";
 
 import tailwind from "@astrojs/tailwind";
+import mdx from "@astrojs/mdx";
 
 export default defineConfig({
   site: 'https://lizyoko9.github.io',
-  integrations: [tailwind()]
+  integrations: [tailwind(), mdx()]
 });
