@@ -33,7 +33,7 @@ const { title, description = 'A programmer blog', wide = false } = Astro.props;
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/png" href="/public/favicon.png" />
 		<meta name="generator" content={Astro.generator} />
         <meta name="description" content={description} />
 		<title>{title}</title>
@@ -44,5 +44,27 @@ const { title, description = 'A programmer blog', wide = false } = Astro.props;
 			<slot />
 		</main>
 		<Footer />
+		<button
+			id="back-to-top"
+			aria-label="返回顶部"
+			class="fixed bottom-6 right-6 z-50 p-2.5 rounded-full bg-gray-800 text-white shadow-lg opacity-0 pointer-events-none transition-all duration-300 hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+		</button>
+		<script>
+			const btn = document.getElementById('back-to-top')!;
+			window.addEventListener('scroll', () => {
+				if (window.scrollY > 300) {
+					btn.classList.remove('opacity-0', 'pointer-events-none');
+					btn.classList.add('opacity-100');
+				} else {
+					btn.classList.add('opacity-0', 'pointer-events-none');
+					btn.classList.remove('opacity-100');
+				}
+			});
+			btn.addEventListener('click', () => {
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			});
+		</script>
 	</body>
 </html>
