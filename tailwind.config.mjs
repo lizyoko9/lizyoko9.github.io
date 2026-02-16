@@ -39,6 +39,12 @@ export default {
 							borderRadius: '0.25rem',
 							fontWeight: '500',
 						},
+						pre: {
+							lineHeight: '1.5',
+						},
+						'pre code': {
+							fontSize: '0.875rem',
+						},
 					},
 				},
 				invert: {
@@ -46,6 +52,10 @@ export default {
 						code: {
 							color: theme('colors.primary.400'),
 							backgroundColor: theme('colors.gray.800'),
+						},
+						pre: {
+							backgroundColor: '#1f2937 !important',
+							borderColor: theme('colors.gray.700'),
 						},
 					},
 				},
