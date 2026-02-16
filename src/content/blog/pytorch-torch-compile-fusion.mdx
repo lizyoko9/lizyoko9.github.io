@@ -251,14 +251,52 @@ Self CPU time total: 3.431ms
 
 ---
 
+## torch.compile 的编译模式
+
+算子融合其实只是 `torch.compile` 的一部分。通过 `mode` 参数可以选择不同的优化策略：
+
+```python
+torch.compile(model, mode="default/reduce-overhead/...")
+```
+
+| mode | 做了什么 | 适用场景 |
+|------|---------|---------|
+| `"default"` | 算子融合，平衡编译时间与性能 | 通用场景 |
+| `"reduce-overhead"` | 融合 + **CUDA Graphs**，减少 CPU 调度开销 | 输入 shape 固定的推理 |
+| `"max-autotune"` | 融合 + **花更多时间 autotuning** 找最优 kernel 配置 | 离线优化，追求极致性能 |
+| `"max-autotune-no-cudagraphs"` | max-autotune 但不用 CUDA Graphs | 输入 shape 动态变化 |
+
+### CUDA Graphs 是什么？
+
+算子融合减少的是**GPU 端**的开销（减少显存读写）。而 **CUDA Graphs** 减少的是 **CPU 端**的开销：
+
+```
+没有 CUDA Graphs：CPU 逐个调度 → cudaLaunchKernel × N 次
+有 CUDA Graphs： CPU 一次回放 → cudaGraphLaunch × 1 次
+```
+
+原理是第一次推理时"录制"整个 kernel 执行序列，之后每次推理只需一次 `cudaGraphLaunch` 回放，CPU 调度开销几乎归零。
+
+### LLM 能用 CUDA Graphs 吗？
+
+CUDA Graphs 要求**输入 shape 固定**——记录的 tensor 形状和回放时必须一致，而 LLM 的序列长度是动态变化的，看起来不能直接用，
+但是目前工业界往往**采用 padding 绕过这个限制**：
+
+- **Padding 到固定长度**：把所有输入 pad 到同一个 seq_len，浪费一些计算但能用 CUDA Graphs
+- **Bucketing**：预设几个固定长度档位（如 128/256/512/1024），每个档位各录一份 graph，按输入长度选最近的档位
+
+vLLM、TensorRT-LLM 等推理框架内部都使用了这种策略。
+
+---
+
 ## 总结
 
 <Note type="info" title="什么时候该用 torch.compile？">
 - 模型中有**大量连续的逐元素操作**（激活函数、归一化、残差连接等）
-- 在 **GPU** 上运行 (CPU 上收益有限)
+- 在 **GPU** 上运行（CPU 上收益有限）
 - 模型足够大，使得编译调度开销可以忽略不计
 
-不适合的场景：模型以大矩阵乘法为主、模型非常小 (< 1ms)、仅在 CPU 上运行。
+不适合的场景：模型以大矩阵乘法为主、模型非常小（< 1ms）、仅在 CPU 上运行。
 </Note>
 
 | | Pointwise-heavy | Matmul-heavy |
@@ -267,3 +305,11 @@ Self CPU time total: 3.431ms
 | **Eager 的问题** | 多个 kernel 反复读写显存 | cuBLAS matmul 已是最优 |
 | **Compile 优化** | 融合为 ~1 个 kernel，数据留在寄存器 | 几乎无法优化 |
 | **加速效果** | 显著提升 | 几乎没有（~1.0x） |
+
+---
+
+## 延伸阅读
+
+想了解 `torch.compile` 底层的编译链路（TorchDynamo → Inductor → Triton → PTX），以及为什么 FlashAttention 等手写优化能远超自动编译？请看下一篇：
+
+[torch.compile 底层在做什么？从 Triton 代码生成到手写 CUDA kernel →](/blog/pytorch-torch-compile-internals)
