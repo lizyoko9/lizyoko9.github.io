@@ -3,7 +3,7 @@ title: "torch.compile 底层在做什么？从 Triton 代码生成到手写 CUDA
 description: "深入 torch.compile 的编译链路：TorchDynamo → FX Graph → Inductor → Triton/PTX，以及为什么 FlashAttention 等手写优化能超越自动编译。"
 pubDate: "2026-02-17"
 ---
-import Note from '../../components/Note.astro';
+import Note from '/src/components/Note.astro';
 
 > 本文是 [torch.compile 到底优化了什么？从 Benchmark 看算子融合的本质](/blog/pytorch-torch-compile-fusion) 的续篇，建议先阅读上篇了解算子融合的基本概念。
 
