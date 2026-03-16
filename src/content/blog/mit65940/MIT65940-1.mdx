@@ -1,0 +1,99 @@
+---
+title: 'MIT6.5940 Lab-1 学习笔记'
+description: '学习如何通过剪枝（Pruning）经典神经网络以减少model size和latency'
+pubDate: '2026-03-13'
+---
+import Note from '/src/components/Note.astro';
+ 
+
+## MIT65940-1 学习笔记
+学习如何通过剪枝（Pruning）经典神经网络以减少model size和latency
+- 理解pruning的基本概念
+- 实现并应用fine-grained pruning
+- 实现并应用channel pruning
+- 对pruning的性能改善有基础理解
+- 理解不同pruning方式之间的差异与tradeoffs
+
+## Fine-grained Pruning
+Fine-grained pruning 移除模型lowest importance的神经元突触，移除后权重矩阵将会变得sparse。
+
+```python
+# Definition of Spasity:
+sparsity = zero_weights / total_weights
+```
+
+### Magnitude-based Pruning
+以权重的绝对值`|w|`作为重要性判据，移除`|w|`最小的权重。
+```python
+def fine_grained_prune(tensor: torch.Tensor, sparsity : float) -> torch.Tensor:
+    """
+    magnitude-based pruning for single tensor
+    :param tensor: torch.(cuda.)Tensor, weight of conv/fc layer
+    :param sparsity: float, pruning sparsity
+        sparsity = #zeros / #elements = 1 - #nonzeros / #elements
+    :return:
+        torch.(cuda.)Tensor, mask for zeros
+    """
+    sparsity = min(max(0.0, sparsity), 1.0)
+    if sparsity == 1.0:
+        tensor.zero_()
+        return torch.zeros_like(tensor)
+    elif sparsity == 0.0:
+        return torch.ones_like(tensor)
+
+    num_elements = tensor.numel()
+
+    num_zeros = round(num_elements * sparsity)
+    importance = torch.abs(tensor)
+    sorted_tensor, _ = importance.flatten().sort()
+    threshold = sorted_tensor.kthvalue(num_zeros).values
+    mask = torch.gt(importance, threshold)
+
+    tensor.mul_(mask)
+
+    return mask
+```
+
+### Channel Pruning
+Channel pruning 移除模型lowest importance的通道，移除后权重矩阵将会变得sparse，但是和fine-grained pruning不同的是，channel pruning 移除的是整个通道的权重，而不是单个权重。
+
+<Note type="hint" title="Computation Reduction">
+**为什么30%的通道prune能产生50%的计算量reduction？**
+核心原因在于：卷积计算量与输入输出通道数是相乘关系。
+一次卷积的 FLOPs 公式为：
+`FLOPs = C_in(0.7x) × C_out(0.7x) × kH × kW × H_out × W_out`
+合起来就大约等价于0.5x的计算量减少。
+</Note>
+
+```python
+# Way to get channel importance:
+## PyTorch 中每个 tensor 都可能附带一个计算图，用于反向传播求梯度。
+## detach() 就是把 tensor 从这个计算图中"切断"，返回一个不带梯度信息的纯数据 tensor。
+channel_weight = weight.detach()[:, i_c]
+importance = torch.norm(channel_weight, p=2)
+
+# Way to prune channel:
+prev_conv.weight.set_(prev_conv.weight.detach()[:n_keep])
+next_conv.weight.set_(next_conv.weight.detach()[:, :n_keep])
+```
+
+一般情况下latency的降低不如计算量降低得多，因为对于现代CPU/GPU来说，内存访问可能是最主要的瓶颈而非计算量；
+再者由于channel数量减少，可能导致GPU的并行度下降，GPU利用率变低，部分计算单元空转。
+
+## Comparison and Summary
+
+| 维度 | Fine-grained Pruning | Channel Pruning |
+|------|----------------------|-----------------|
+| **压缩率** |  极高，可达 90%+ sparsity | 中等，通常 30–50% 已是精度边界 |
+| **精度保留** | 保留单个重要权重，精度损失小 | 整列删除信息损失更多，但微调更易收敛 |
+| **实际延迟** | 非结构化稀疏，标准硬件无法加速 | 直接缩小 tensor 尺寸，原生加速 |
+| **硬件依赖** |  需要稀疏加速器（如 NVIDIA A100 Sparse Tensor Core） | 任意 dense conv 硬件均适用（CPU/NPU/边缘设备） |
+| **实现复杂度** |  简单，仅需 mask 矩阵 | 需同步修改相邻层 weight shape 及 BN 层 |
+
+除上表描述的差异外，两者有一个重要区别在于**稀疏性是否对硬件可见**：
+
+- **Fine-grained pruning** 产生非结构化稀疏，权重矩阵形状不变，标准硬件仍需处理完整张量，加速收益只存在于参数存储层面，必须依赖专用稀疏加速器才能转化为实际延迟收益。
+
+- **Channel pruning** 产生结构化稀疏，网络被物理上变窄，任何支持 dense conv 的硬件都能直接感知并加速，工程落地成本更低。
+
+实际工程中的折中方案是 **2:4 structured sparsity**（NVIDIA Ampere 架构原生支持）：在每 4 个权重中强制剔除出 2 个零值，兼顾了 fine-grained 的灵活性与硬件可加速性。
