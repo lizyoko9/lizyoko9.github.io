@@ -1,0 +1,28 @@
+---
+title: 'Tauri 01: Process Model'
+description: 'Tauri 的进程模型：主进程、渲染进程和命令执行的分工与通信机制'
+pubDate: '2026-05-16'
+---
+import Note from '/src/components/Note.astro';
+
+Tauri 是一个用于构建跨平台桌面应用的框架，其核心设计之一是其独特的进程模型。Tauri 的进程模型主要由以下几个部分组成：
+- The Core Process
+- The WebView Process
+
+## 为什么采用多进程模型？
+在早前的桌面应用开发中，有许多框架采用单进程模型来渲染界面和反馈用户输入。这种设计虽然简单
+但可以预见的是，单进程模型会导致长耗时的操作会阻塞界面响应，甚至让整个程序崩溃。
+而多进程模型则将界面渲染和业务逻辑分离，确保界面始终保持流畅响应，各组件之间隔离为多个进程，
+也能保证应用的稳定性和安全性（单个组件的崩溃不会影响整个应用）。
+
+## The Core Process 核心进程
+每一个Tauri应用都有一个core process，作为应用的entry point，也是唯一拥有完整操作系统权限的组件。
+
+核心进程的主要职责包括：创建和协调应用窗口、系统托盘菜单或通知；管理全局状态（e.g. 应用配置、用户数据，
+便于在不同进程间共享同步）
+
+## The WebView Process 渲染进程
+核心进程不会直接渲染UI，而是通过下发WebView Process并利用操作系统提供的WebView库来渲染界面。
+WebView是一个类似浏览器的环境，可以执行HTML/CSS/JavaScript代码。
+
+所以大多数用于Web开发的技术、工具都阔以用来创建Tauri应用，比如Svelte、React、Vue等前段框架。

@@ -1,0 +1,54 @@
+---
+title: "Tauri 02: IPC Intro"
+description: "Tauri 2 中的 IPC 通信实践与基础架构介绍。"
+pubDate: "2026-05-17"
+tags:
+  - Tauri
+  - IPC
+  - Rust
+  - Astro
+  - WebDev
+---
+
+import Note from '/src/components/Note.astro';
+
+## 1. 为什么需要 IPC？
+
+Tauri 应用本质上由两部分组成：
+
+- 前端 WebView（HTML / CSS / JavaScript）
+- Rust 后端 Runtime
+
+前端负责界面渲染，而系统能力（文件系统、窗口控制、系统 API 等）通常由 Rust 后端完成。
+
+因此，前后端之间需要一种稳定、安全的通信机制，这就是 IPC（Inter-Process Communication）。
+
+在 Tauri 2 中，最常见的 IPC 方式包括：
+
+- `invoke`：前端主动调用 Rust command
+- 事件系统（Event System）：后端主动向前端发送通知
+
+`invoke` 本质上是 WebView 与 Rust Runtime 之间的异步 RPC bridge。
+
+---
+
+## 2. 最小可运行示例
+
+### 前端调用 Rust Command
+
+```ts
+import { invoke } from "@tauri-apps/api/core";
+
+async function greet() {
+  const result = await invoke("greet", {
+    name: "Liz",
+  });
+
+  console.log(result);
+}
+
+greet();
+```
+
+* "greet" 是 Rust 中注册的 command 名称
+* 第二个参数会自动序列化并发送给后端
