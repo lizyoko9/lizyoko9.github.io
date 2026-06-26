@@ -63,7 +63,7 @@
         
         if (results.length > 0) {
             searchResults.innerHTML = results.slice(0, 5).map(result => `
-                <a href="/blog/${result.item.slug}/" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                <a href="/blog/${result.item.id}/" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-0">
                     <div class="text-sm font-medium text-gray-900 dark:text-white truncate">${result.item.title}</div>
                     <div class="text-xs text-gray-500 dark:text-gray-400 truncate">${result.item.description || ''}</div>
                 </a>

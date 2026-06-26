@@ -5,7 +5,7 @@ export async function GET() {
     const searchList = posts.map(post => ({
         title: post.data.title,
         description: post.data.description,
-        slug: post.slug,
+        slug: post.id,
         body: post.body,
     }));
 
