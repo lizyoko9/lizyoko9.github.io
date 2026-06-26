@@ -3,18 +3,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/global.css';
 
-// Supports weights 300-800
-import '@fontsource/open-sans/400.css';
-import '@fontsource/open-sans/500.css';
-import '@fontsource/open-sans/600.css';
-import '@fontsource/open-sans/700.css';
-
-// Supports weights 100-900
-import '@fontsource/noto-sans-sc/400.css';
-import '@fontsource/noto-sans-sc/500.css';
-import '@fontsource/noto-sans-sc/700.css';
-
-// Supports weights 400-700
+// 等宽字体（代码块）— 中英文正文与标题已改用自托管的方圆体/得意黑（见下方 <link>）
 import '@fontsource/sometype-mono/400.css';
 import '@fontsource/sometype-mono/500.css';
 import '@fontsource/sometype-mono/600.css';
@@ -35,6 +24,11 @@ const { title, description = 'A programmer blog', wide = false } = Astro.props;
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/png" href="/favicon.png" />
+		<!-- 得意黑 Smiley Sans（标题展示字体，已按 unicode-range 子集化，仅下载用到的字形） -->
+		<link rel="stylesheet" href="/fonts/smiley-sans/result.css" />
+		<!-- 阿里妈妈方圆体（中文正文字体，子集化；Regular + Bold 两个真实字重） -->
+		<link rel="stylesheet" href="/fonts/alimama-fangyuanti/regular/result.css" />
+		<link rel="stylesheet" href="/fonts/alimama-fangyuanti/bold/result.css" />
 		<meta name="generator" content={Astro.generator} />
         <meta name="description" content={description} />
 		<title>{title}</title>

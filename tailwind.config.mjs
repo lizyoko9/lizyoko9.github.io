@@ -5,8 +5,11 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				sans: ['Noto Sans SC', 'Open Sans', 'system-ui', 'sans-serif'],
+				// 中英文统一用阿里妈妈方圆体（含完整拉丁字形）；生僻字回退系统字体
+				sans: ['Alimama FangYuanTi', 'system-ui', 'sans-serif'],
 				mono: ['Sometype Mono', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
+				// 展示字体：得意黑（标题/站点名）
+				display: ['Smiley Sans', 'system-ui', 'sans-serif'],
 			},
 			colors: {
 				// 现代靛蓝色系 — 比标准 blue 更有辨识度

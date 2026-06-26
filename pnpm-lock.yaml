@@ -14,12 +14,6 @@ importers:
       '@astrojs/tailwind':
         specifier: ^6.0.2
         version: 6.0.2(astro@7.0.3(@astrojs/markdown-remark@7.2.0)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(jiti@1.21.7)(yaml@2.8.2))(tailwindcss@3.4.19(yaml@2.8.2))
-      '@fontsource/noto-sans-sc':
-        specifier: ^5.2.9
-        version: 5.2.9
-      '@fontsource/open-sans':
-        specifier: ^5.2.7
-        version: 5.2.7
       '@fontsource/sometype-mono':
         specifier: ^5.2.7
         version: 5.2.7
@@ -387,12 +381,6 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
-
-  '@fontsource/noto-sans-sc@5.2.9':
-    resolution: {integrity: sha512-bTUIWGBgJDpwi5qAr+x0/lcgv80IHTB9vl6s2f6EymZEa7qYV99yNRBZuKFT+SYDKVunZrjCEhWtpxqmbXWl5Q==}
-
-  '@fontsource/open-sans@5.2.7':
-    resolution: {integrity: sha512-8yfgDYjE5O0vmTPdrcjV35y4yMnctsokmi9gN49Gcsr0sjzkMkR97AnKDe6OqZh2SFkYlR28fxOvi21bYEgMSw==}
 
   '@fontsource/sometype-mono@5.2.7':
     resolution: {integrity: sha512-O4+MlxspnkU4LsoKeu+kBw2HzGoZZyJ+UWgxb28M9Ppcy/nxv1PgPO2p0gD4LWMu9IPVHjDSgrhGXz+5Vg9HJg==}
@@ -2451,10 +2439,6 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.1':
     optional: true
-
-  '@fontsource/noto-sans-sc@5.2.9': {}
-
-  '@fontsource/open-sans@5.2.7': {}
 
   '@fontsource/sometype-mono@5.2.7': {}
 
