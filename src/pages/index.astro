@@ -3,43 +3,113 @@ import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
+
+const techStack = ['Python', 'PyTorch', 'CUDA', 'LLM', 'AI Agent', 'RAN', '语义通信', 'Tauri', 'Astro'];
 ---
 
 <Layout title="首页 | Lizlog">
-    <div class="py-12 md:py-20 text-center">
-        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
-            Hello, I'm <span class="text-primary-600 dark:text-primary-400">lizyoko</span>
-        </h1>
-        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            热爱编程, 探索技术. 这是我的个人博客, 分享关于开发、设计和生活的思考.
-        </p>
-    </div>
+    <!-- Hero 区域 -->
+    <section class="relative py-16 md:py-24 lg:py-32 text-center overflow-hidden">
+        <!-- 网格背景图案 -->
+        <div class="absolute inset-0 bg-grid-pattern -z-10"></div>
+        <!-- 渐变光晕 -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-400/10 dark:bg-primary-500/5 rounded-full blur-3xl -z-10"></div>
 
-    <section>
-        <h2 class="text-2xl font-bold mb-8 pb-2 border-b border-gray-200 dark:border-gray-800">最新文章</h2>
-        <div class="grid gap-8">
-            {posts.map((post) => (
-                <article class="flex flex-col space-y-2">
-                    <div class="text-gray-500 dark:text-gray-400 text-sm font-mono">
-                        {post.data.pubDate.toLocaleDateString('zh-CN', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                        })}
+        <div class="max-w-3xl mx-auto">
+            <!-- 打招呼 -->
+            <p class="text-primary-600 dark:text-primary-400 font-mono text-sm md:text-base mb-4 tracking-wider animate-fade-in">
+                👋 Hello, welcome to my blog
+            </p>
+
+            <!-- 主标题 -->
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 animate-fade-in-up">
+                Hello, I'm <br class="sm:hidden" />
+                <span class="gradient-text">lizyoko</span>
+            </h1>
+
+            <!-- 副标题 -->
+            <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-fade-in-up stagger-1">
+                通信工程研究生 · 热爱编程，探索技术
+            </p>
+            <p class="text-base text-slate-500 dark:text-slate-500 max-w-xl mx-auto mt-3 animate-fade-in-up stagger-2">
+                分享 AI、深度学习系统、CUDA、Web 开发等领域的学习与思考
+            </p>
+
+            <!-- 技术栈标签 -->
+            <div class="flex flex-wrap justify-center gap-2 mt-8 animate-fade-in-up stagger-3">
+                {techStack.map((tech) => (
+                    <span class="tag">{tech}</span>
+                ))}
+            </div>
+        </div>
+
+        <!-- 滚动提示箭头 -->
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 hidden md:block animate-fade-in stagger-4">
+            <div class="animate-bounce-arrow text-slate-400 dark:text-slate-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14M5 12l7 7 7-7"/>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- 最新文章 -->
+    <section class="mt-4">
+        <div class="flex items-center gap-3 mb-8">
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">最新文章</h2>
+            <div class="h-px flex-1 bg-gradient-to-r from-primary-300 to-transparent dark:from-primary-700"></div>
+        </div>
+
+        <div class="grid gap-6">
+            {posts.map((post, index) => (
+                <article class="group relative bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-800/60 overflow-hidden card-hover animate-fade-in-up" style={`animation-delay: ${0.1 + index * 0.08}s`}>
+                    <!-- 左侧渐变装饰条 -->
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-400 via-primary-500 to-accent-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                    <div class="p-6 md:p-8">
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                            <div class="flex-1">
+                                <!-- 日期标签 -->
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="tag text-xs">
+                                        {post.data.pubDate.toLocaleDateString('zh-CN', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                        })}
+                                    </span>
+                                    <!-- 分类目录 -->
+                                    <span class="text-xs text-slate-400 dark:text-slate-500 font-mono">
+                                        {post.id.split('/')[0]}
+                                    </span>
+                                </div>
+
+                                <!-- 标题 -->
+                                <h3 class="text-xl md:text-2xl font-bold mb-2">
+                                    <a href={`/blog/${post.id}/`} class="text-slate-900 dark:text-slate-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                                        {post.data.title}
+                                    </a>
+                                </h3>
+
+                                <!-- 描述 -->
+                                <p class="text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed">
+                                    {post.data.description}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 阅读链接 -->
+                        <div class="mt-4">
+                            <a href={`/blog/${post.id}/`} class="link-underline text-primary-600 dark:text-primary-400 text-sm font-medium inline-flex items-center gap-1">
+                                阅读更多
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-0.5 transition-transform">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
                     </div>
-                    <h3 class="text-xl font-bold">
-                        <a href={`/blog/${post.id}/`} class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                            {post.data.title}
-                        </a>
-                    </h3>
-                    <p class="text-gray-600 dark:text-gray-400 line-clamp-3">
-                        {post.data.description}
-                    </p>
-                    <a href={`/blog/${post.id}/`} class="text-primary-600 dark:text-primary-400 hover:underline text-sm font-medium inline-flex items-center">
-                        阅读更多 <span class="ml-1">&rarr;</span>
-                    </a>
                 </article>
             ))}
         </div>

@@ -1,33 +1,67 @@
 ---
 import Search from './Search.astro';
+const currentPath = Astro.url.pathname;
 ---
-<header class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+
+<header id="site-header" class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/60 dark:border-slate-800/60 transition-all duration-300">
     <nav class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <!-- Logo -->
         <div class="flex items-center shrink-0 mr-4">
-            <a href="/" class="text-xl font-bold font-mono text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
-                &lt;Lizlog /&gt;
+            <a href="/" class="text-xl font-bold font-mono text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 transition-colors group flex items-center gap-1">
+                <span class="group-hover:rotate-[-8deg] transition-transform duration-300 inline-block">&lt;</span>
+                Lizlog
+                <span class="group-hover:rotate-[8deg] transition-transform duration-300 inline-block">/&gt;</span>
             </a>
         </div>
-        
+
+        <!-- 搜索 -->
         <div class="flex-1 max-w-md mx-4 hidden sm:block">
             <Search />
         </div>
 
-        <div class="flex items-center space-x-6 shrink-0">
-            <div class="sm:hidden">
-                <!-- Mobile placeholder or icon if needed -->
-            </div>
-            <a href="/" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors hidden md:block">首页</a>
-            <a href="/blog" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors hidden md:block">文章</a>
-            <a href="https://github.com/lizyoko9" target="_blank" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors">GitHub</a>
-            
-            <button id="theme-toggle" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
-                <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
-                <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+        <!-- 导航链接 -->
+        <div class="flex items-center space-x-1 shrink-0">
+            <a href="/" class={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                currentPath === '/' || currentPath.startsWith('/?')
+                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/50'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            } hidden md:block`}>
+                首页
+            </a>
+            <a href="/blog" class={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                currentPath.startsWith('/blog')
+                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/50'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            } hidden md:block`}>
+                文章
+            </a>
+            <a href="https://github.com/lizyoko9" target="_blank" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 hidden md:inline-flex items-center gap-1">
+                GitHub
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+
+            <!-- 主题切换 -->
+            <button id="theme-toggle" class="p-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all duration-200" aria-label="切换主题">
+                <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 transition-transform duration-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 transition-transform duration-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
             </button>
         </div>
     </nav>
 </header>
+
+<!-- 滚动玻璃效果 -->
+<script>
+    const header = document.getElementById('site-header');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 10) {
+            header.classList.add('backdrop-blur-lg', 'bg-white/70', 'dark:bg-slate-900/70');
+            header.classList.remove('bg-white/80', 'dark:bg-slate-900/80');
+        } else {
+            header.classList.remove('backdrop-blur-lg', 'bg-white/70', 'dark:bg-slate-900/70');
+            header.classList.add('bg-white/80', 'dark:bg-slate-900/80');
+        }
+    });
+</script>
 
 <script is:inline>
     // 检查本地存储或系统偏好
@@ -49,6 +83,10 @@ import Search from './Search.astro';
     }
 
     themeToggleBtn.addEventListener('click', function() {
+        // 旋转动画
+        const visibleIcon = document.documentElement.classList.contains('dark') ? lightIcon : darkIcon;
+        visibleIcon.style.transform = 'rotate(360deg)';
+
         // 切换图标
         darkIcon.classList.toggle('hidden');
         lightIcon.classList.toggle('hidden');
@@ -71,5 +109,10 @@ import Search from './Search.astro';
                 localStorage.setItem('color-theme', 'dark');
             }
         }
+
+        // 重置旋转
+        setTimeout(() => {
+            visibleIcon.style.transform = '';
+        }, 500);
     });
 </script>
