@@ -132,17 +132,23 @@ const { Content, headings } = await render(post);
 
     function updateProgress() {
         if (!article || !progressBar) return;
-        const rect = article.getBoundingClientRect();
-        const articleTop = rect.top;
-        const articleHeight = rect.height;
+
         const viewportHeight = window.innerHeight;
-        const scrolled = -articleTop + viewportHeight;
-        const total = articleHeight + viewportHeight;
-        const progress = Math.min(100, Math.max(0, (scrolled / total) * 100));
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const rect = article.getBoundingClientRect();
+        const articleBottom = scrollTop + rect.top + rect.height;
+        const maxPageScroll = Math.max(0, document.documentElement.scrollHeight - viewportHeight);
+        const readingEnd = Math.min(maxPageScroll, Math.max(0, articleBottom - viewportHeight));
+        const progress = readingEnd <= 0
+            ? 100
+            : Math.min(100, Math.max(0, (scrollTop / readingEnd) * 100));
+
         progressBar.style.width = `${progress}%`;
     }
 
     window.addEventListener('scroll', updateProgress, { passive: true });
+    window.addEventListener('resize', updateProgress);
+    window.addEventListener('load', updateProgress);
     updateProgress();
 
     // 代码复制功能 + 语言标签
