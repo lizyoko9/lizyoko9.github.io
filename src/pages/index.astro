@@ -6,110 +6,242 @@ const posts = (await getCollection('blog')).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
-const techStack = ['Python', 'PyTorch', 'CUDA', 'LLM', 'Agentic AI', 'Communications'];
+const latestPosts = posts.slice(0, 4);
+
+const techStack = ['C/C++', 'Python', 'Golang', 'TypeScript', '5G RAN', 'FastAPI', 'LangGraph'];
+
+const focusAreas = [
+    {
+        title: '5G RAN & O-RAN',
+        description: '参与 L2 MAC 协议栈、RedCap UE、SU-MIMO 8 Layers 与 O-RAN rAPP 开发。',
+        accent: 'from-primary-500 to-sky-400',
+    },
+    {
+        title: 'RAG & Agent Workflow',
+        description: '用 FastAPI、SQLModel、LangGraph 做垂直领域文档分析和多 Agent 协作工作流。',
+        accent: 'from-cyan-500 to-teal-400',
+    },
+    {
+        title: 'AI Systems Notes',
+        description: '持续整理 PyTorch、CUDA、torch.compile、GPU kernel 等深度学习系统笔记。',
+        accent: 'from-sky-400 to-cyan-400',
+    },
+];
+
+const signatureProjects = [
+    {
+        title: '5G RAN 协议栈开发',
+        description: '参与 L2 MAC、RedCap UE、SU-MIMO 8 Layers 等 3GPP Feature，并用 Golang 开发 O-RAN rAPP 优化下行链路质量。',
+        href: '/resume#experience',
+        meta: 'Telecom Systems',
+    },
+    {
+        title: '科技投创大模型',
+        description: '基于 FastAPI、SQLModel、LangGraph、PostgreSQL 构建商业计划书分析流水线和投资分析工作流。',
+        href: '/resume#projects',
+        meta: 'RAG Application',
+    },
+    {
+        title: 'AgentHub 多 Agent 协作平台',
+        description: 'local-first 的多 Agent 工作空间，把 AI 协作组织成 IM 群聊式体验，并用 Orchestrator 拆分任务。',
+        href: 'https://github.com/lizyoko9/bitdance-agenthub',
+        meta: 'Agent Workspace',
+    },
+];
+
+const stats = [
+    { value: '2年', label: '5G RAN 工程经历' },
+    { value: '3条', label: '长期技术主线' },
+    { value: posts.length, label: '篇技术文章' },
+];
 ---
 
-<Layout title="首页 | Lizlog">
-    <!-- Hero 区域 -->
-    <section class="relative py-16 md:py-24 lg:py-32 text-center overflow-hidden">
-        <!-- 网格背景图案 -->
-        <div class="absolute inset-0 bg-grid-pattern -z-10"></div>
-        <!-- 渐变光晕 -->
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-400/10 dark:bg-primary-500/5 rounded-full blur-3xl -z-10"></div>
+<Layout title="Lizyoko | Resume & Blog" description="Lizyoko 的个人简历、技术项目与博客文章。" wide>
+    <section class="relative overflow-hidden py-12 md:py-16 lg:py-20">
+        <div class="absolute inset-0 bg-grid-pattern opacity-80"></div>
+        <div class="absolute inset-x-0 top-0 z-10 h-1 bg-gradient-to-r from-primary-500 via-sky-400 to-cyan-400"></div>
 
-        <div class="max-w-3xl mx-auto">
-            <!-- 打招呼 -->
-            <p class="text-primary-600 dark:text-primary-400 font-mono text-sm md:text-base mb-4 tracking-wider animate-fade-in">
-                👋 Welcome to my blog
-            </p>
+        <div class="relative z-10 grid gap-10 lg:grid-cols-[1.12fr_0.88fr] lg:items-center">
+            <div>
+                <p class="font-mono text-sm font-semibold tracking-[0.2em] text-primary-600 dark:text-primary-400 animate-fade-in">
+                    LIZYOKO / COMMUNICATIONS / AI
+                </p>
 
-            <!-- 主标题 -->
-            <h1 class="text-4xl md:text-6xl lg:text-7xl font-display font-extrabold tracking-tight mb-6 animate-fade-in-up">
-                Hello, I'm <br class="sm:hidden" />
-                <span class="gradient-text">Lizyoko</span>
-            </h1>
+                <h1 class="mt-5 max-w-3xl text-4xl font-display font-extrabold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-7xl animate-fade-in-up">
+                    记录成长，也记录
+                    <span class="relative inline-block pb-2">
+                        <span class="gradient-text">技术探索</span>
+                        <svg
+                            class="pointer-events-none absolute -bottom-1 left-0 h-5 w-full overflow-visible text-cyan-300 dark:text-cyan-200"
+                            viewBox="0 0 220 34"
+                            fill="none"
+                            aria-hidden="true"
+                            focusable="false"
+                            preserveAspectRatio="none"
+                        >
+                            <defs>
+                                <linearGradient id="tech-explore-underline" x1="8" y1="20" x2="212" y2="20" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#fb7185" />
+                                    <stop offset="0.5" stop-color="#f472b6" />
+                                    <stop offset="1" stop-color="#f97316" />
+                                </linearGradient>
+                                <filter id="tech-explore-glow" x="-8%" y="-80%" width="116%" height="240%" color-interpolation-filters="sRGB">
+                                    <feGaussianBlur stdDeviation="1.2" result="blur" />
+                                    <feMerge>
+                                        <feMergeNode in="blur" />
+                                        <feMergeNode in="SourceGraphic" />
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <path
+                                d="M8 20C22 6 37 6 51 20C65 34 80 34 94 20C108 6 123 6 137 20C151 34 166 34 180 20C194 6 207 6 212 14"
+                                stroke="#0f172a"
+                                stroke-opacity="0.12"
+                                stroke-width="11"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                            <path
+                                d="M8 20C22 6 37 6 51 20C65 34 80 34 94 20C108 6 123 6 137 20C151 34 166 34 180 20C194 6 207 6 212 14"
+                                stroke="url(#tech-explore-underline)"
+                                stroke-width="6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                filter="url(#tech-explore-glow)"
+                            />
+                        </svg>
+                    </span>
+                </h1>
 
-            <!-- 副标题 -->
-            <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-fade-in-up stagger-1">
-                热爱编程，探索技术
-            </p>
-            <p class="text-base text-slate-500 dark:text-slate-500 max-w-xl mx-auto mt-3 animate-fade-in-up stagger-2">
-                分享 Music、AI、Web 开发等领域的学习与思考
-            </p>
+                <p class="mt-6 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300 sm:text-lg animate-fade-in-up stagger-1">
+                    我是 Lizyoko，信息与通信工程方向。曾参与 5G RAN L2 MAC 与 O-RAN rAPP 开发，现在关注垂直领域 RAG、多 Agent 协作平台，以及 AI 系统相关的工程实践与技术写作。
+                </p>
 
-            <!-- 技术栈标签 -->
-            <div class="flex flex-wrap justify-center gap-2 mt-8 animate-fade-in-up stagger-3">
-                {techStack.map((tech) => (
-                    <span class="tag">{tech}</span>
-                ))}
+                <div class="mt-8 flex flex-col gap-3 sm:flex-row animate-fade-in-up stagger-2">
+                    <a href="/resume" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-primary-600/20 transition hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-xl hover:shadow-primary-600/25 focus:outline-none focus:ring-2 focus:ring-primary-500/40 dark:bg-primary-500 dark:hover:bg-primary-400">
+                        查看简历
+                    </a>
+                    <a href="/blog" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-primary-300 hover:text-primary-600 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-200 dark:hover:border-primary-500 dark:hover:text-primary-300">
+                        阅读文章
+                    </a>
+                </div>
+
+                <div class="mt-8 flex flex-wrap gap-2 animate-fade-in-up stagger-3">
+                    {techStack.map((tech) => (
+                        <span class="tag">{tech}</span>
+                    ))}
+                </div>
             </div>
-        </div>
 
-        <!-- 滚动提示箭头 -->
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 hidden md:block animate-fade-in stagger-4">
-            <div class="animate-bounce-arrow text-slate-400 dark:text-slate-600">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 5v14M5 12l7 7 7-7"/>
-                </svg>
-            </div>
+            <aside class="relative animate-fade-in-up stagger-2">
+                <div class="rounded-2xl border border-slate-200/80 bg-slate-950 p-5 text-white shadow-2xl shadow-primary-950/15 dark:border-slate-700/70 dark:bg-slate-950/90">
+                    <div class="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+                        <div>
+                            <p class="font-mono text-xs uppercase tracking-[0.22em] text-primary-300">profile</p>
+                            <h2 class="mt-1 text-2xl font-display font-bold">Lizyoko</h2>
+                        </div>
+                        <div class="rounded-2xl bg-white/10 px-3 py-2 text-right font-mono text-xs text-slate-300">
+                            resume<br />
+                            blog
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 py-5">
+                        {stats.map((item) => (
+                            <div>
+                                <div class="text-2xl font-display font-bold text-white">{item.value}</div>
+                                <div class="mt-1 text-xs leading-4 text-slate-300">{item.label}</div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div class="space-y-3">
+                        {focusAreas.map((area) => (
+                            <div class="group border-t border-white/10 pt-4">
+                                <div class={`h-1.5 w-16 rounded-full bg-gradient-to-r ${area.accent}`}></div>
+                                <h3 class="mt-3 text-base font-bold text-white">{area.title}</h3>
+                                <p class="mt-1 text-sm leading-6 text-slate-300">{area.description}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </aside>
         </div>
     </section>
 
-    <!-- 最新文章 -->
-    <section class="mt-4">
-        <div class="flex items-center gap-3 mb-8">
-            <h2 class="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">最新文章</h2>
-            <div class="h-px flex-1 bg-gradient-to-r from-primary-300 to-transparent dark:from-primary-700"></div>
+    <section class="mt-14 grid gap-5 md:grid-cols-3">
+        {focusAreas.map((area, index) => (
+            <article class="group relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-card-hover dark:border-slate-800/70 dark:bg-slate-900 animate-fade-in-up" style={`animation-delay: ${0.08 + index * 0.08}s`}>
+                <div class={`h-1.5 w-20 rounded-full bg-gradient-to-r ${area.accent}`}></div>
+                <h2 class="mt-5 text-xl font-display font-bold text-slate-950 dark:text-white">{area.title}</h2>
+                <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">{area.description}</p>
+            </article>
+        ))}
+    </section>
+
+    <section class="mt-16">
+        <div class="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p class="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-primary-600 dark:text-primary-400">selected work</p>
+                <h2 class="mt-2 text-2xl font-display font-bold text-slate-950 dark:text-white md:text-3xl">项目与经历</h2>
+            </div>
+            <a href="/resume" class="link-underline text-sm font-semibold text-primary-600 dark:text-primary-400">查看完整简历</a>
         </div>
 
-        <div class="grid gap-6">
-            {posts.map((post, index) => (
-                <article class="group relative bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-800/60 overflow-hidden card-hover animate-fade-in-up" style={`animation-delay: ${0.1 + index * 0.08}s`}>
-                    <!-- 左侧渐变装饰条 -->
-                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-400 via-primary-500 to-accent-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="grid gap-5 lg:grid-cols-3">
+            {signatureProjects.map((project, index) => (
+                <article class="group rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary-300 hover:shadow-card-hover dark:border-slate-800/70 dark:bg-slate-900 dark:hover:border-primary-600 animate-fade-in-up" style={`animation-delay: ${0.1 + index * 0.08}s`}>
+                    <p class="font-mono text-xs uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">{project.meta}</p>
+                    <h3 class="mt-4 text-xl font-display font-bold text-slate-950 dark:text-white">
+                        <a href={project.href} class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                            {project.title}
+                        </a>
+                    </h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">{project.description}</p>
+                    <a href={project.href} target={project.href.startsWith('http') ? '_blank' : undefined} rel={project.href.startsWith('http') ? 'noreferrer' : undefined} class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 transition dark:text-primary-400">
+                        查看详情
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </article>
+            ))}
+        </div>
+    </section>
 
-                    <div class="p-6 md:p-8">
-                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                            <div class="flex-1">
-                                <!-- 日期标签 -->
-                                <div class="flex items-center gap-3 mb-3">
-                                    <span class="tag text-xs">
-                                        {post.data.pubDate.toLocaleDateString('zh-CN', {
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric',
-                                        })}
-                                    </span>
-                                    <!-- 分类目录 -->
-                                    <span class="text-xs text-slate-400 dark:text-slate-500 font-mono">
-                                        {post.id.split('/')[0]}
-                                    </span>
-                                </div>
+    <section class="mt-16">
+        <div class="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p class="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-primary-600 dark:text-primary-400">latest writing</p>
+                <h2 class="mt-2 text-2xl font-display font-bold text-slate-950 dark:text-white md:text-3xl">最新文章</h2>
+            </div>
+            <a href="/blog" class="link-underline text-sm font-semibold text-primary-600 dark:text-primary-400">全部文章</a>
+        </div>
 
-                                <!-- 标题 -->
-                                <h3 class="text-xl md:text-2xl font-bold mb-2">
-                                    <a href={`/blog/${post.id}/`} class="text-slate-900 dark:text-slate-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                                        {post.data.title}
-                                    </a>
-                                </h3>
-
-                                <!-- 描述 -->
-                                <p class="text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed">
-                                    {post.data.description}
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- 阅读链接 -->
-                        <div class="mt-4">
-                            <a href={`/blog/${post.id}/`} class="link-underline text-primary-600 dark:text-primary-400 text-sm font-medium inline-flex items-center gap-1">
-                                阅读更多
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-0.5 transition-transform">
-                                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                                </svg>
-                            </a>
-                        </div>
+        <div class="grid gap-5 lg:grid-cols-2">
+            {latestPosts.map((post, index) => (
+                <article class="group relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-card-hover dark:border-slate-800/70 dark:bg-slate-900 animate-fade-in-up" style={`animation-delay: ${0.1 + index * 0.06}s`}>
+                    <div class="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-primary-500 via-sky-400 to-cyan-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span class="tag text-xs">
+                            {post.data.pubDate.toLocaleDateString('zh-CN', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                            })}
+                        </span>
+                        <span class="font-mono text-xs text-slate-400 dark:text-slate-500">
+                            {post.id.split('/')[0]}
+                        </span>
                     </div>
+                    <h3 class="mt-4 text-xl font-bold leading-snug">
+                        <a href={`/blog/${post.id}/`} class="text-slate-950 transition hover:text-primary-600 dark:text-white dark:hover:text-primary-400">
+                            {post.data.title}
+                        </a>
+                    </h3>
+                    <p class="mt-3 line-clamp-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
+                        {post.data.description}
+                    </p>
                 </article>
             ))}
         </div>

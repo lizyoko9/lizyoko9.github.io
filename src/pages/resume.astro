@@ -1,0 +1,328 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const selectedWriting = posts.slice(0, 5);
+
+const profileFacts = [
+    { label: '当前', value: '北京邮电大学 信息与通信工程 硕士' },
+    { label: '经历', value: '5G RAN L2 MAC / O-RAN rAPP 开发' },
+    { label: '方向', value: '通信系统、AI 应用、Agentic Workflow' },
+];
+
+const contactLinks = [
+    { label: 'GitHub', href: 'https://github.com/lizyoko9' },
+    { label: 'Email', href: 'mailto:lizyoko@bupt.edu.cn' },
+    { label: 'Blog', href: '/blog' },
+];
+
+const skillGroups = [
+    {
+        title: 'Programming',
+        skills: ['C/C++', 'Python', 'Golang', 'TypeScript'],
+    },
+    {
+        title: 'Backend & Data',
+        skills: ['FastAPI', 'SQLModel', 'PostgreSQL', 'SQLite', 'Drizzle', 'RESTful API', 'GraphQL'],
+    },
+    {
+        title: 'AI & Agent',
+        skills: ['LangGraph', 'RAG', 'LLM Workflow', 'Multi-Agent', 'Orchestrator'],
+    },
+    {
+        title: 'Communication & Systems',
+        skills: ['5G RAN', 'L2 MAC', 'O-RAN rAPP', 'RedCap UE', 'SU-MIMO', 'Link Adaptation'],
+    },
+    {
+        title: 'Writing & Web',
+        skills: ['Astro', 'MDX', 'Tailwind CSS', 'Technical Blogging', 'PyTorch/CUDA Notes'],
+    },
+];
+
+const education = [
+    {
+        school: '北京邮电大学',
+        major: '信息与通信工程 · 硕士',
+        period: '2025.09 - 至今',
+        location: '北京',
+    },
+    {
+        school: '北京邮电大学',
+        major: '通信工程 · 本科',
+        period: '2019.08 - 2023.06',
+        location: '北京',
+    },
+];
+
+const workExperience = [
+    {
+        company: '叠拓信息技术（北京）有限公司成都分公司',
+        role: '5G RAN 协议栈开发',
+        period: '2023.07 - 2025.07',
+        points: [
+            '主要负责 L2 MAC 部分开发，参与 RedCap UE、SU-MIMO 8 Layers 等 3GPP Feature 的开发工作。',
+            '围绕资源分配、调度等流程做实现与优化，参与无线接入网协议栈工程化交付。',
+            '使用 Golang 开发基于 O-RAN 架构的 rAPP，在非实时 RIC 上收集接口数据，并基于历史数据调整链路自适应参数，用于降低信道 BLER、提升下行链路吞吐表现。',
+        ],
+    },
+];
+
+const projects = [
+    {
+        title: '科技投创大模型',
+        role: '学生负责人',
+        period: '2025.08 - 2025.12',
+        meta: '北京市科学技术委员会横向项目',
+        stack: ['Python', 'FastAPI', 'SQLModel', 'LangGraph', 'PostgreSQL', 'BackgroundTasks'],
+        points: [
+            '基于 FastAPI + SQLModel 搭建后端服务，设计 RESTful 与 GraphQL 混合 API 架构，支撑灵活的数据交互与服务解耦。',
+            '使用 FastAPI Background Tasks 构建文件处理流水线，配合多线程轮询追踪 PDF 云端解析状态，缓解大文件分析场景下的 HTTP 阻塞与超时问题。',
+            '结合 LangGraph 编排投资分析工作流，对商业计划书等非结构化文档做 ETL，提取项目风险、团队背景等关键特征，转化为投资决策辅助数据。',
+        ],
+    },
+    {
+        title: 'AgentHub 多 Agent 协作平台',
+        role: '开发人员',
+        period: '个人项目',
+        meta: 'local-first agent workspace',
+        href: 'https://github.com/lizyoko9/bitdance-agenthub',
+        stack: ['TypeScript', 'Zustand', 'SQLite', 'Drizzle', 'Next.js', 'React'],
+        points: [
+            '把 AI 协作做成 IM 群聊式体验，通过 Orchestrator 将一项任务拆分给多个 Agent 并行处理。',
+            '采用 local-first 思路组织多 Agent 工作空间，关注本地状态管理、任务上下文和协作过程的可视化表达。',
+        ],
+    },
+];
+
+const organizations = [
+    {
+        name: '北邮游戏开发社',
+        role: '社团负责人',
+        points: ['协调举办 GameJam 活动。', '协调举办图形渲染、音频开发等游戏开发技术讲座。'],
+    },
+    {
+        name: '北邮青年新媒体中心',
+        role: '影视部干事',
+        points: ['负责影视节目的前期统筹、策划、录制与后期处理。'],
+    },
+];
+---
+
+<Layout title="Lizyoko 简历 | Lizlog" description="Lizyoko 的个人简历、项目经历、技术方向与代表文章。" wide>
+    <section class="relative overflow-hidden py-10 md:py-14">
+        <div class="absolute inset-0 bg-grid-pattern opacity-70"></div>
+        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary-500 via-sky-400 to-cyan-400"></div>
+
+        <div class="relative grid gap-8 lg:grid-cols-[1fr_360px] lg:items-end">
+            <div>
+                <p class="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-400">resume / lizyoko</p>
+                <h1 class="mt-4 text-4xl font-display font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
+                    Lizyoko
+                </h1>
+                <p class="mt-4 max-w-3xl text-base leading-8 text-slate-600 dark:text-slate-300 sm:text-lg">
+                    信息与通信工程方向，曾参与 5G RAN L2 MAC 协议栈与 O-RAN rAPP 开发。当前关注垂直领域 RAG、多 Agent 协作平台，以及 AI 系统相关的工程实践与技术写作。
+                </p>
+
+                <div class="mt-7 flex flex-wrap gap-3">
+                    {contactLinks.map((link) => (
+                        <a href={link.href} target={link.href.startsWith('http') ? '_blank' : undefined} rel={link.href.startsWith('http') ? 'noreferrer' : undefined} class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-primary-300 hover:text-primary-600 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-200 dark:hover:border-primary-500 dark:hover:text-primary-300">
+                            {link.label}
+                        </a>
+                    ))}
+                </div>
+            </div>
+
+            <aside class="rounded-3xl border border-slate-200/80 bg-slate-950 p-5 text-white shadow-xl shadow-primary-950/10 dark:border-slate-700">
+                <p class="font-mono text-xs uppercase tracking-[0.22em] text-primary-300">quick facts</p>
+                <div class="mt-4 space-y-3">
+                    {profileFacts.map((fact) => (
+                        <div class="border-t border-white/10 pt-3 first:border-t-0 first:pt-0">
+                            <div class="text-xs text-slate-400">{fact.label}</div>
+                            <div class="mt-1 text-sm font-semibold leading-6 text-white">{fact.value}</div>
+                        </div>
+                    ))}
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section class="mt-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <div>
+            <div class="mb-6">
+                <p class="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-primary-600 dark:text-primary-400">education</p>
+                <h2 class="mt-2 text-2xl font-display font-bold text-slate-950 dark:text-white">教育经历</h2>
+            </div>
+
+            <div class="space-y-4">
+                {education.map((item) => (
+                    <article class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm dark:border-slate-800/70 dark:bg-slate-900">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                                <h3 class="text-lg font-display font-bold text-slate-950 dark:text-white">{item.school}</h3>
+                                <p class="mt-1 text-sm font-semibold text-primary-600 dark:text-primary-400">{item.major}</p>
+                            </div>
+                            <div class="font-mono text-xs text-slate-500 dark:text-slate-400 sm:text-right">
+                                <div>{item.period}</div>
+                                <div class="mt-1">{item.location}</div>
+                            </div>
+                        </div>
+                    </article>
+                ))}
+            </div>
+        </div>
+
+        <div>
+            <div class="mb-6">
+                <p class="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-primary-600 dark:text-primary-400">skills</p>
+                <h2 class="mt-2 text-2xl font-display font-bold text-slate-950 dark:text-white">技术栈</h2>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                {skillGroups.map((group) => (
+                    <article class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm dark:border-slate-800/70 dark:bg-slate-900">
+                        <h3 class="text-base font-display font-bold text-slate-950 dark:text-white">{group.title}</h3>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            {group.skills.map((skill) => (
+                                <span class="tag">{skill}</span>
+                            ))}
+                        </div>
+                    </article>
+                ))}
+            </div>
+        </div>
+    </section>
+
+    <section id="experience" class="mt-14">
+        <div class="mb-6">
+            <p class="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-primary-600 dark:text-primary-400">experience</p>
+            <h2 class="mt-2 text-2xl font-display font-bold text-slate-950 dark:text-white">工作经历</h2>
+        </div>
+
+        <div class="space-y-5">
+            {workExperience.map((item) => (
+                <article class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm dark:border-slate-800/70 dark:bg-slate-900">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <h3 class="text-xl font-display font-bold text-slate-950 dark:text-white">{item.role}</h3>
+                            <p class="mt-1 text-sm font-semibold text-primary-600 dark:text-primary-400">{item.company}</p>
+                        </div>
+                        <p class="font-mono text-xs text-slate-500 dark:text-slate-400">{item.period}</p>
+                    </div>
+                    <ul class="mt-5 space-y-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
+                        {item.points.map((point) => (
+                            <li class="flex gap-3">
+                                <span class="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-primary-500"></span>
+                                <span>{point}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </article>
+            ))}
+        </div>
+    </section>
+
+    <section id="projects" class="mt-14">
+        <div class="mb-6">
+            <p class="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-primary-600 dark:text-primary-400">projects</p>
+            <h2 class="mt-2 text-2xl font-display font-bold text-slate-950 dark:text-white">项目经历</h2>
+        </div>
+
+        <div class="grid gap-5 lg:grid-cols-2">
+            {projects.map((project) => (
+                <article class="group rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary-300 hover:shadow-card-hover dark:border-slate-800/70 dark:bg-slate-900 dark:hover:border-primary-600">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <p class="font-mono text-xs uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">{project.meta}</p>
+                            <h3 class="mt-3 text-xl font-display font-bold text-slate-950 dark:text-white">
+                                {project.href ? (
+                                    <a href={project.href} target="_blank" rel="noreferrer" class="transition hover:text-primary-600 dark:hover:text-primary-400">
+                                        {project.title}
+                                    </a>
+                                ) : (
+                                    project.title
+                                )}
+                            </h3>
+                            <p class="mt-1 text-sm font-semibold text-primary-600 dark:text-primary-400">{project.role}</p>
+                        </div>
+                        <p class="font-mono text-xs text-slate-500 dark:text-slate-400">{project.period}</p>
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        {project.stack.map((skill) => (
+                            <span class="tag">{skill}</span>
+                        ))}
+                    </div>
+
+                    <ul class="mt-5 space-y-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
+                        {project.points.map((point) => (
+                            <li class="flex gap-3">
+                                <span class="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-400"></span>
+                                <span>{point}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </article>
+            ))}
+        </div>
+    </section>
+
+    <section class="mt-14 grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <div>
+            <div class="mb-6">
+                <p class="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-primary-600 dark:text-primary-400">campus</p>
+                <h2 class="mt-2 text-2xl font-display font-bold text-slate-950 dark:text-white">组织经历</h2>
+            </div>
+
+            <div class="space-y-4">
+                {organizations.map((org) => (
+                    <article class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm dark:border-slate-800/70 dark:bg-slate-900">
+                        <h3 class="text-lg font-display font-bold text-slate-950 dark:text-white">{org.name}</h3>
+                        <p class="mt-1 text-sm font-semibold text-primary-600 dark:text-primary-400">{org.role}</p>
+                        <ul class="mt-4 space-y-2 text-sm leading-7 text-slate-600 dark:text-slate-400">
+                            {org.points.map((point) => (
+                                <li>{point}</li>
+                            ))}
+                        </ul>
+                    </article>
+                ))}
+            </div>
+        </div>
+
+        <div>
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-primary-600 dark:text-primary-400">writing samples</p>
+                    <h2 class="mt-2 text-2xl font-display font-bold text-slate-950 dark:text-white">代表文章</h2>
+                </div>
+                <a href="/blog" class="link-underline text-sm font-semibold text-primary-600 dark:text-primary-400">全部文章</a>
+            </div>
+
+            <div class="space-y-4">
+                {selectedWriting.map((post) => (
+                    <article class="group rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-primary-300 hover:shadow-card-hover dark:border-slate-800/70 dark:bg-slate-900 dark:hover:border-primary-600">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="font-mono text-xs text-slate-400 dark:text-slate-500">{post.id.split('/')[0]}</span>
+                            <span class="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                            <time class="text-xs text-slate-500 dark:text-slate-400">
+                                {post.data.pubDate.toLocaleDateString('zh-CN', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                })}
+                            </time>
+                        </div>
+                        <h3 class="mt-3 text-base font-bold leading-snug">
+                            <a href={`/blog/${post.id}/`} class="text-slate-950 transition hover:text-primary-600 dark:text-white dark:hover:text-primary-400">
+                                {post.data.title}
+                            </a>
+                        </h3>
+                    </article>
+                ))}
+            </div>
+        </div>
+    </section>
+</Layout>

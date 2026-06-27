@@ -24,7 +24,7 @@ const posts = (await getCollection('blog')).sort(
             {posts.map((post, index) => (
                 <article class="group relative bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-800/60 overflow-hidden card-hover animate-fade-in-up" style={`animation-delay: ${0.05 + index * 0.06}s`}>
                     <!-- 左侧渐变装饰条 -->
-                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-400 via-primary-500 to-accent-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 via-sky-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                     <div class="p-6 md:p-8">
                         <div class="flex items-center gap-3 mb-3">
