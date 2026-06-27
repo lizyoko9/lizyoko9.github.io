@@ -6,7 +6,7 @@ const posts = (await getCollection('blog')).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
-const techStack = ['Python', 'PyTorch', 'CUDA', 'LLM', 'AI Agent', 'RAN', '语义通信', 'Tauri', 'Astro'];
+const techStack = ['Python', 'PyTorch', 'CUDA', 'LLM', 'Agentic AI', 'Communications'];
 ---
 
 <Layout title="首页 | Lizlog">
@@ -20,21 +20,21 @@ const techStack = ['Python', 'PyTorch', 'CUDA', 'LLM', 'AI Agent', 'RAN', '语�
         <div class="max-w-3xl mx-auto">
             <!-- 打招呼 -->
             <p class="text-primary-600 dark:text-primary-400 font-mono text-sm md:text-base mb-4 tracking-wider animate-fade-in">
-                👋 Hello, welcome to my blog
+                👋 Welcome to my blog
             </p>
 
             <!-- 主标题 -->
             <h1 class="text-4xl md:text-6xl lg:text-7xl font-display font-extrabold tracking-tight mb-6 animate-fade-in-up">
                 Hello, I'm <br class="sm:hidden" />
-                <span class="gradient-text">lizyoko</span>
+                <span class="gradient-text">Lizyoko</span>
             </h1>
 
             <!-- 副标题 -->
-            <p class="text-lg md:text-xl font-display text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-fade-in-up stagger-1">
-                通信工程研究生 · 热爱编程，探索技术
+            <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-fade-in-up stagger-1">
+                热爱编程，探索技术
             </p>
-            <p class="text-base font-display text-slate-500 dark:text-slate-500 max-w-xl mx-auto mt-3 animate-fade-in-up stagger-2">
-                分享 AI、深度学习系统、CUDA、Web 开发等领域的学习与思考
+            <p class="text-base text-slate-500 dark:text-slate-500 max-w-xl mx-auto mt-3 animate-fade-in-up stagger-2">
+                分享 Music、AI、Web 开发等领域的学习与思考
             </p>
 
             <!-- 技术栈标签 -->
