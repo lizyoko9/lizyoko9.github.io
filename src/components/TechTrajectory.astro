@@ -1,0 +1,145 @@
+<div class="binary-field" aria-hidden="true">
+  <div class="binary-field__glow"></div>
+  <div class="binary-field__stream binary-field__stream--one">
+    <div class="binary-field__track">
+      <span>0101 1100 1011 0010 1110 0101 1001 0110 1101 0011 1010 0111</span>
+      <span>0101 1100 1011 0010 1110 0101 1001 0110 1101 0011 1010 0111</span>
+    </div>
+  </div>
+  <div class="binary-field__stream binary-field__stream--two">
+    <div class="binary-field__track">
+      <span>1010 0111 0010 1101 0001 1011 0100 1110 0011 0110 1001 0101</span>
+      <span>1010 0111 0010 1101 0001 1011 0100 1110 0011 0110 1001 0101</span>
+    </div>
+  </div>
+  <div class="binary-field__stream binary-field__stream--four">
+    <div class="binary-field__track">
+      <span>1101 0010 0101 1001 0110 1011 0001 1110 0100 1010 0111 0011</span>
+      <span>1101 0010 0101 1001 0110 1011 0001 1110 0100 1010 0111 0011</span>
+    </div>
+  </div>
+  <div class="binary-field__stream binary-field__stream--five">
+    <div class="binary-field__track">
+      <span>0011 1010 0110 1110 0101 1001 0010 1101 0111 0001 1011 0100</span>
+      <span>0011 1010 0110 1110 0101 1001 0010 1101 0111 0001 1011 0100</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .binary-field {
+    position: absolute;
+    inset: -6% -8% -14% -8%;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 16%, black 62%, transparent 94%);
+    mask-image: linear-gradient(90deg, transparent 0%, black 16%, black 62%, transparent 94%);
+  }
+
+  .binary-field__glow {
+    position: absolute;
+    left: 12%;
+    right: 10%;
+    bottom: 0;
+    height: 34%;
+    background:
+      radial-gradient(ellipse at 34% 82%, rgba(37, 99, 235, 0.14), transparent 48%),
+      radial-gradient(ellipse at 68% 86%, rgba(6, 182, 212, 0.13), transparent 54%);
+    filter: blur(24px);
+  }
+
+  .binary-field__stream {
+    position: absolute;
+    left: -6%;
+    width: max-content;
+    font-family: 'Sometype Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(0.92rem, 1.2vw, 1.35rem);
+    font-weight: 800;
+    letter-spacing: 0.26em;
+    white-space: nowrap;
+    color: #2563eb;
+    text-shadow: 0 0 18px rgba(37, 99, 235, 0.18);
+    opacity: 0.16;
+  }
+
+  :global(.dark) .binary-field__stream {
+    color: #67e8f9;
+    text-shadow: 0 0 20px rgba(34, 211, 238, 0.24);
+    opacity: 0.2;
+  }
+
+  .binary-field__track {
+    display: inline-flex;
+    width: max-content;
+    animation-name: binaryStream;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+  }
+
+  .binary-field__stream span {
+    display: inline-block;
+    padding-right: 3.2rem;
+  }
+
+  .binary-field__stream--one {
+    top: 16%;
+  }
+
+  .binary-field__stream--one .binary-field__track {
+    animation-duration: 28s;
+  }
+
+  .binary-field__stream--two {
+    top: 30%;
+    opacity: 0.12;
+  }
+
+  .binary-field__stream--two .binary-field__track {
+    animation-duration: 34s;
+    animation-delay: -9s;
+  }
+
+  .binary-field__stream--four {
+    top: 62%;
+    opacity: 0.1;
+  }
+
+  .binary-field__stream--four .binary-field__track {
+    animation-duration: 38s;
+    animation-delay: -6s;
+  }
+
+  .binary-field__stream--five {
+    top: 78%;
+    opacity: 0.13;
+  }
+
+  .binary-field__stream--five .binary-field__track {
+    animation-duration: 32s;
+    animation-delay: -23s;
+  }
+
+  @keyframes binaryStream {
+    from {
+      transform: translate3d(-50%, 0, 0);
+    }
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .binary-field {
+      inset: -4% -46% -12% -12%;
+      opacity: 0.58;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .binary-field__track {
+      animation: none;
+      transform: translateX(0);
+    }
+  }
+</style>
