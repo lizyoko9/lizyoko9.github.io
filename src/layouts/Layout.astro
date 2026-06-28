@@ -24,16 +24,63 @@ const { title, description = 'A programmer blog', wide = false } = Astro.props;
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/png" href="/favicon.png" />
+		<link rel="preload" href="/fonts/smiley-sans/c61784b5352513a7975bc9d7b45dea36.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/fonts/smiley-sans/4055c8b28ab5185d0c2bf4a133043526.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/fonts/smiley-sans/db3e99cb0a4d5f8690366014e58fc334.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/fonts/smiley-sans/372dfd55fd80c211a9fb0d2b26f9a051.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/fonts/smiley-sans/58bb19d8d1fda1bf440ee80436bed78d.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/fonts/alimama-fangyuanti/regular/2cab97b047154ac611e82206cc40eb61.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/fonts/alimama-fangyuanti/regular/0f898ecaaf796aaeb55bc1bfd5adc8ee.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/fonts/alimama-fangyuanti/regular/bf698760739a9df708b4a1ff03888e49.woff2" as="font" type="font/woff2" crossorigin />
 		<!-- 得意黑 Smiley Sans（标题展示字体，已按 unicode-range 子集化，仅下载用到的字形） -->
 		<link rel="stylesheet" href="/fonts/smiley-sans/result.css" />
 		<!-- 阿里妈妈方圆体（中文正文字体，子集化；Regular + Bold 两个真实字重） -->
 		<link rel="stylesheet" href="/fonts/alimama-fangyuanti/regular/result.css" />
 		<link rel="stylesheet" href="/fonts/alimama-fangyuanti/bold/result.css" />
+		<script is:inline>
+			(() => {
+				try {
+					if (!sessionStorage.getItem('lizyoko:first-load-seen')) {
+						document.documentElement.classList.add('is-first-load');
+					}
+				} catch {
+					document.documentElement.classList.add('is-first-load');
+				}
+			})();
+		</script>
 		<meta name="generator" content={Astro.generator} />
         <meta name="description" content={description} />
 		<title>{title}</title>
 	</head>
 	<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+		<div id="site-loader" class="site-loader" role="status" aria-label="正在进入 Lizyoko">
+			<div class="site-loader__content">
+				<div class="site-loader__eyebrow">resume / blog</div>
+				<div class="site-loader__logo">Lizyoko</div>
+				<svg
+					class="site-loader__wave"
+					viewBox="0 0 260 46"
+					fill="none"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<path
+						d="M8 27C25 8 43 8 60 27C77 46 95 46 112 27C129 8 147 8 164 27C181 46 199 46 216 27C233 8 248 10 252 18"
+						stroke="url(#loader-wave-gradient)"
+						stroke-width="7"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+					<defs>
+						<linearGradient id="loader-wave-gradient" x1="8" y1="27" x2="252" y2="27" gradientUnits="userSpaceOnUse">
+							<stop stop-color="#0ea5e9" />
+							<stop offset="0.48" stop-color="#06b6d4" />
+							<stop offset="1" stop-color="#fb7185" />
+						</linearGradient>
+					</defs>
+				</svg>
+			</div>
+		</div>
 		<Header />
 		<main class={`flex-grow w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 ${wide ? 'max-w-6xl xl:max-w-[90rem]' : 'max-w-4xl'}`}>
 			<slot />
@@ -60,6 +107,35 @@ const { title, description = 'A programmer blog', wide = false } = Astro.props;
 			btn.addEventListener('click', () => {
 				window.scrollTo({ top: 0, behavior: 'smooth' });
 			});
+		</script>
+		<script>
+			const root = document.documentElement;
+
+			if (root.classList.contains('is-first-load')) {
+				const startedAt = performance.now();
+				const minVisibleMs = 420;
+				const maxVisibleMs = 900;
+
+				const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+				const fontReady = 'fonts' in document ? document.fonts.ready.catch(() => undefined) : Promise.resolve();
+
+				const finishLoading = () => {
+					try {
+						sessionStorage.setItem('lizyoko:first-load-seen', 'true');
+					} catch {}
+
+					root.classList.add('is-leaving-first-load');
+
+					window.setTimeout(() => {
+						root.classList.remove('is-first-load', 'is-leaving-first-load');
+					}, 320);
+				};
+
+				Promise.race([fontReady, wait(maxVisibleMs)]).then(() => {
+					const elapsed = performance.now() - startedAt;
+					window.setTimeout(finishLoading, Math.max(0, minVisibleMs - elapsed));
+				});
+			}
 		</script>
 	</body>
 </html>
