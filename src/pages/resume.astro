@@ -305,8 +305,11 @@ const organizations = [
                 {selectedWriting.map((post) => (
                     <article class="group rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-primary-300 hover:shadow-card-hover dark:border-slate-800/70 dark:bg-slate-900 dark:hover:border-primary-600">
                         <div class="flex flex-wrap items-center gap-3">
-                            <span class="font-mono text-xs text-slate-400 dark:text-slate-500">{post.id.split('/')[0]}</span>
-                            <span class="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                            {(post.data.tags.length ? post.data.tags : [post.id.split('/')[0]]).slice(0, 2).map((tag) => (
+                                <span class="font-mono text-xs text-primary-600 dark:text-primary-400 rounded-full bg-primary-50 px-2.5 py-1 dark:bg-slate-800">
+                                    {tag}
+                                </span>
+                            ))}
                             <time class="text-xs text-slate-500 dark:text-slate-400">
                                 {post.data.pubDate.toLocaleDateString('zh-CN', {
                                     year: 'numeric',

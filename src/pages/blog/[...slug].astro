@@ -17,6 +17,7 @@ type Props = CollectionEntry<'blog'>;
 
 const post = Astro.props;
 const { Content, headings } = await render(post);
+const tags = post.data.tags.length ? post.data.tags : [post.id.split('/')[0]];
 ---
 
 <Layout title={post.data.title} description={post.data.description} wide={true}>
@@ -60,8 +61,10 @@ const { Content, headings } = await render(post);
                     )}
                 </div>
                 <!-- 标签装饰 -->
-                <div class="mt-4 flex justify-center">
-                    <span class="tag text-xs">{post.id.split('/')[0]}</span>
+                <div class="mt-4 flex flex-wrap justify-center gap-2">
+                    {tags.map((tag) => (
+                        <span class="tag text-xs">{tag}</span>
+                    ))}
                 </div>
             </div>
 

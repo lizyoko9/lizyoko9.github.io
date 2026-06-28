@@ -341,6 +341,53 @@ html {
   background: #0c4a6e;
 }
 
+.tag-filter {
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.tag-filter.is-active {
+  background: #2563eb;
+  color: #fff;
+  border-color: rgba(37, 99, 235, 0.35);
+}
+
+.dark .tag-filter.is-active {
+  background: #0e7490;
+  color: #ecfeff;
+  border-color: rgba(34, 211, 238, 0.35);
+}
+
+.tag-filter-panel {
+  position: relative;
+  max-height: 2.15rem;
+  overflow: hidden;
+  transition: max-height 0.28s ease;
+}
+
+.tag-filter-panel::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 8rem;
+  height: 2.15rem;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, #f8fafc 72%);
+}
+
+.dark .tag-filter-panel::after {
+  background: linear-gradient(90deg, transparent, #020617 72%);
+}
+
+.tag-filter-panel.is-expanded {
+  max-height: 12rem;
+}
+
+.tag-filter-panel.is-expanded::after {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

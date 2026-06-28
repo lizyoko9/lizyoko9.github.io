@@ -233,9 +233,11 @@ const stats = [
                                 day: 'numeric',
                             })}
                         </span>
-                        <span class="font-mono text-xs text-slate-400 dark:text-slate-500">
-                            {post.id.split('/')[0]}
-                        </span>
+                        {(post.data.tags.length ? post.data.tags : [post.id.split('/')[0]]).slice(0, 3).map((tag) => (
+                            <span class="font-mono text-xs text-primary-600 dark:text-primary-400 rounded-full bg-primary-50 px-2.5 py-1 dark:bg-slate-800">
+                                {tag}
+                            </span>
+                        ))}
                     </div>
                     <h3 class="mt-4 text-xl font-bold leading-snug">
                         <a href={`/blog/${post.id}/`} class="text-slate-950 transition hover:text-primary-600 dark:text-white dark:hover:text-primary-400">
