@@ -388,6 +388,26 @@ html {
   opacity: 0;
 }
 
+/* LaTeX 公式块：避免长公式撑破文章宽度 */
+.prose .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin: 1.75rem 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 0.75rem;
+  background: rgba(248, 250, 252, 0.72);
+}
+
+.dark .prose .katex-display {
+  border-color: rgba(51, 65, 85, 0.72);
+  background: rgba(15, 23, 42, 0.52);
+}
+
+.prose .katex-display > .katex {
+  white-space: nowrap;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

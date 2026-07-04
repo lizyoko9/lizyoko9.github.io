@@ -1,0 +1,207 @@
+---
+interface Props {
+  chart: string;
+  title?: string;
+}
+
+const { chart, title } = Astro.props;
+const source = chart.trim();
+---
+
+<figure class="mermaid-figure not-prose my-8" data-mermaid-root>
+  {title && <figcaption class="mermaid-caption">{title}</figcaption>}
+  <div class="mermaid-frame">
+    <div
+      class="mermaid-diagram"
+      data-mermaid-target
+      role="img"
+      aria-label={title ?? 'Mermaid diagram'}
+    >
+      <span class="mermaid-loading">Rendering diagram...</span>
+    </div>
+    <template data-mermaid-source>{source}</template>
+  </div>
+</figure>
+
+<script>
+  type MermaidApi = typeof import('mermaid').default;
+  type MermaidRenderResult = Awaited<ReturnType<MermaidApi['render']>>;
+
+  let mermaidApi: MermaidApi | undefined;
+
+  async function loadMermaid() {
+    if (!mermaidApi) {
+      mermaidApi = (await import('mermaid')).default;
+    }
+
+    return mermaidApi;
+  }
+
+  const themeVariables = {
+    light: {
+      background: 'transparent',
+      primaryColor: '#eff6ff',
+      primaryTextColor: '#0f172a',
+      primaryBorderColor: '#93c5fd',
+      lineColor: '#2563eb',
+      secondaryColor: '#ecfeff',
+      tertiaryColor: '#fff7ed',
+      edgeLabelBackground: '#ffffff',
+      clusterBkg: '#f8fafc',
+      clusterBorder: '#cbd5e1',
+      fontFamily: 'Alimama FangYuanTi, system-ui, sans-serif',
+    },
+    dark: {
+      background: 'transparent',
+      primaryColor: '#0f172a',
+      primaryTextColor: '#e0f2fe',
+      primaryBorderColor: '#0e7490',
+      lineColor: '#22d3ee',
+      secondaryColor: '#082f49',
+      tertiaryColor: '#111827',
+      edgeLabelBackground: '#020617',
+      clusterBkg: '#020617',
+      clusterBorder: '#1e293b',
+      fontFamily: 'Alimama FangYuanTi, system-ui, sans-serif',
+    },
+  };
+
+  const getMode = () => document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+
+  async function renderMermaidDiagrams() {
+    const mode = getMode();
+    const mermaid = await loadMermaid();
+
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'strict',
+      theme: 'base',
+      themeVariables: themeVariables[mode],
+      flowchart: {
+        curve: 'basis',
+        htmlLabels: false,
+        padding: 16,
+      },
+    });
+
+    const diagrams = document.querySelectorAll<HTMLElement>('[data-mermaid-root]');
+
+    for (const [index, root] of diagrams.entries()) {
+      const diagram = root.querySelector<HTMLElement>('[data-mermaid-target]');
+      const sourceTemplate = root.querySelector<HTMLTemplateElement>('template[data-mermaid-source]');
+      if (!diagram || !sourceTemplate) continue;
+      if (diagram.dataset.mermaidRenderedTheme === mode) continue;
+
+      const source = sourceTemplate.content.textContent?.trim() ?? '';
+      const id = `mermaid-${index}-${mode}-${Math.random().toString(36).slice(2)}`;
+
+      try {
+        const result: MermaidRenderResult = await mermaid.render(id, source);
+        diagram.innerHTML = result.svg;
+        result.bindFunctions?.(diagram);
+        diagram.dataset.mermaidRenderedTheme = mode;
+        root.classList.remove('has-error');
+      } catch (error) {
+        console.error('Mermaid render failed:', error);
+        diagram.textContent = source;
+        diagram.dataset.mermaidRenderedTheme = '';
+        root.classList.add('has-error');
+      }
+    }
+  }
+
+  const scheduleRender = () => window.requestAnimationFrame(() => {
+    void renderMermaidDiagrams();
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleRender, { once: true });
+  } else {
+    scheduleRender();
+  }
+
+  document.addEventListener('astro:page-load', scheduleRender);
+
+  new MutationObserver(scheduleRender).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+</script>
+
+<style>
+  .mermaid-figure {
+    color: #0f172a;
+  }
+
+  :global(.dark) .mermaid-figure {
+    color: #e2e8f0;
+  }
+
+  .mermaid-caption {
+    margin-bottom: 0.6rem;
+    font-family: 'Sometype Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #2563eb;
+    text-transform: uppercase;
+  }
+
+  :global(.dark) .mermaid-caption {
+    color: #67e8f9;
+  }
+
+  .mermaid-frame {
+    overflow-x: auto;
+    padding: 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    border-radius: 0.75rem;
+    background:
+      linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(6, 182, 212, 0.04)),
+      rgba(255, 255, 255, 0.86);
+    box-shadow: 0 12px 30px -24px rgba(15, 23, 42, 0.35);
+  }
+
+  :global(.dark) .mermaid-frame {
+    border-color: rgba(30, 64, 175, 0.42);
+    background:
+      linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(6, 182, 212, 0.06)),
+      rgba(2, 6, 23, 0.82);
+    box-shadow: 0 16px 34px -26px rgba(0, 0, 0, 0.75);
+  }
+
+  .mermaid-diagram {
+    min-width: min(42rem, 100%);
+    display: grid;
+    place-items: center;
+  }
+
+  .mermaid-diagram :global(svg) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .mermaid-loading {
+    padding: 1.75rem 0;
+    font-family: 'Sometype Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.78rem;
+    color: #64748b;
+  }
+
+  :global(.dark) .mermaid-loading {
+    color: #94a3b8;
+  }
+
+  .has-error .mermaid-diagram {
+    display: block;
+    white-space: pre-wrap;
+    font-family: 'Sometype Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: #be123c;
+  }
+
+  :global(.dark) .has-error .mermaid-diagram {
+    color: #fda4af;
+  }
+</style>

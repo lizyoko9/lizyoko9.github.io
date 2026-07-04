@@ -1,0 +1,128 @@
+---
+title: 'Agentic AI 02: Context Budget and Tool Routing'
+description: '用上下文预算和工具路由理解 Agent 系统：模型什么时候该检索、什么时候该行动，以及为什么循环需要预算。'
+pubDate: '2026-07-04'
+tags:
+  - Agentic AI
+---
+import Note from '/src/components/Note.astro';
+import Mermaid from '/src/components/Mermaid.astro';
+
+> Agent 的稳定性，很多时候不是模型能力问题，而是 context、tool boundary 和 control loop 的组织问题。
+
+## TLDR
+
+一个 Agent 系统不只是“模型 + 工具”。真正影响工程质量的是三件事：
+
+- 上下文里放什么，不放什么
+- 当前步骤该回答、检索，还是调用工具
+- 循环什么时候继续，什么时候停止
+
+如果把所有历史、检索结果和工具返回都无差别塞进 prompt，系统很快会变得慢、贵，而且不稳定。更合理的做法是把上下文当成一种预算：每个 token 都应该服务于当前决策。
+
+在一个窗口大小为 $B_{\text{max}}$ 的模型里，实际使用的上下文需要满足 $B_{\text{used}} \le B_{\text{max}}$。这个约束看起来简单，但它会直接影响 Agent 的架构设计。
+
+## Context 不是越多越好
+
+我之前会下意识觉得：既然模型有长上下文，那就尽量多放信息。但在 Agent 场景里，context 太多会带来几个问题：
+
+- 模型更难关注当前步骤真正需要的信息
+- 检索片段之间可能互相冲突
+- 工具调用历史会让 prompt 膨胀
+- 成本和延迟会随着循环步数持续上升
+
+可以把一次 Agent 决策的上下文预算拆成：
+
+$$
+B_{\text{used}} =
+T_{\text{system}} + T_{\text{user}} + T_{\text{memory}} +
+T_{\text{retrieval}} + T_{\text{tool}} + T_{\text{scratchpad}}
+$$
+
+这里最容易失控的是 $T_{\text{tool}}$ 和 $T_{\text{scratchpad}}$。工具返回通常很长，scratchpad 又会随着每一轮观察和修正不断增长。如果没有压缩、摘要和淘汰策略，Agent 会在几轮之后把注意力浪费在无关历史里。
+
+<Note type="hint" title="工程判断">
+上下文不是仓库，而是工作台。工作台上应该只放当前步骤要用的材料。
+</Note>
+
+## Tool Routing 是一个决策问题
+
+Agent 每一轮都需要回答一个问题：现在应该做什么？
+
+常见动作可以粗略分成三类：
+
+- 直接回答：上下文足够，风险较低
+- 检索补充：缺少事实、文档或历史记录
+- 调用工具：需要读写外部状态，或者执行一个可验证动作
+
+这其实是一个路由问题。可以把候选动作集合记作 $A$，对每个动作打一个分：
+
+$$
+a^* = \operatorname*{arg\,max}_{a \in A}
+\left(\lambda_r R(a, q) + \lambda_s S(a, s) - \lambda_c C(a)\right)
+$$
+
+其中 $R(a, q)$ 表示动作和当前问题的相关性，$S(a, s)$ 表示这个动作在当前状态下的安全性，$C(a)$ 表示成本。实际系统不一定真的用这个公式实现，但它是一个有用的思考框架：不要只问“模型能不能调用工具”，还要问“这一步值不值得调用工具”。
+
+## 一个更清晰的 Agent Loop
+
+下面这张图是我现在更倾向的 Agent 控制循环。重点不是让模型自由发散，而是让 context builder 和 router 把每一步的输入整理清楚。
+
+<Mermaid title="Agentic AI Context / Tool Routing Loop" chart={`
+flowchart LR
+  U["用户目标"] --> C["Context Builder"]
+  C --> R{"路由判断"}
+  R -->|需要外部知识| K["Retriever"]
+  R -->|需要改变状态| T["Tool Call"]
+  R -->|信息足够| M["Model Reasoning"]
+  K --> C
+  T --> O["Observation"]
+  O --> C
+  M --> F["Final Answer"]
+`} />
+
+这个结构里有两个边界很重要：
+
+1. Retriever 只负责补充知识，不直接改变外部状态。
+2. Tool Call 可能改变外部状态，所以需要 schema、权限和必要的人类确认。
+
+把这两个边界分清楚，系统会更容易调试。否则很多问题会混在一起：到底是检索错了、工具返回错了，还是模型在错误上下文上继续推理？
+
+## 循环也需要预算
+
+Agent 的循环能力很有用，但它不能无限继续。一个实际可用的系统至少应该有这些限制：
+
+- 最大工具调用次数
+- 最大推理轮数
+- 最大上下文 token
+- 单个工具的超时和重试次数
+- 高风险动作的人类确认点
+
+我更喜欢把这些限制显式写进状态，而不是只放在 prompt 里。例如：
+
+```ts
+type AgentBudget = {
+  maxSteps: number;
+  maxToolCalls: number;
+  maxContextTokens: number;
+  requireApprovalFor: string[];
+};
+```
+
+这样做的好处是，预算不是一句“请不要过度调用工具”的自然语言建议，而是系统可以检查、记录和回放的工程约束。
+
+<Note type="warning" title="不要迷信自动性">
+Agent 越能行动，就越需要边界。没有预算和权限控制的 Agent，很容易把“不确定”放大成“不可控”。
+</Note>
+
+## 小结
+
+这篇想表达的核心是：Agentic AI 的工程重点不只是模型能力，而是围绕模型建立一套可控的决策环境。
+
+我现在会把一个 Agent 系统拆成三层来看：
+
+- Context layer：整理当前步骤需要的信息
+- Routing layer：决定回答、检索还是调用工具
+- Control layer：限制循环、成本和风险
+
+这三层做好以后，模型才更像一个可靠的决策核心，而不是一个被动塞满上下文的文本生成器。
