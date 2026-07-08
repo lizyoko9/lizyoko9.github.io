@@ -1,0 +1,344 @@
+---
+title: 'Agentic AI 03: Agentic RL Survey Reading Notes'
+description: '阅读 The Landscape of Agentic Reinforcement Learning for LLMs: A Survey：从 POMDP 视角理解 LLM Agent 为什么需要 RL。'
+pubDate: '2026-07-09'
+tags:
+  - Agentic AI
+---
+import Note from '/src/components/Note.astro';
+import Mermaid from '/src/components/Mermaid.astro';
+
+> 这篇 survey 对我的启发是：Agentic RL 不是“再用 RL 把回答调好一点”，而是把 LLM 放进一个有状态、有动作、有反馈的环境里，让它学习如何长期推进任务。
+
+## TLDR
+
+《The Landscape of Agentic Reinforcement Learning for LLMs: A Survey》试图把两个原本有点分散的方向接起来：
+
+- LLM RL：用 RLHF、DPO、RFT 等方法优化模型输出
+- LLM Agent：让模型具备规划、工具调用、记忆、自我修正和环境交互能力
+
+它提出的核心视角是：传统 LLM RL 更像是在一个单步任务里优化回答质量，而 Agentic RL 则把 LLM 看成一个在动态环境中行动的 policy。模型不只是生成一段文本，而是在多轮循环里观察、决策、行动、获得奖励，再继续调整下一步。
+
+如果用一句话概括：
+
+<Note type="info" title="一句话理解">
+PBRFT 优化的是一次回答；Agentic RL 优化的是一段行为轨迹。
+</Note>
+
+这对 Agent 工程很重要。因为很多 Agent 失败不是失败在“某一句话说错了”，而是失败在更长的行为链条里：工具用早了、检索用错了、记忆写乱了、循环停不下来，或者在错误反馈上越走越偏。
+
+## 这篇 Survey 想解决什么问题
+
+我之前理解 RL + LLM，更多会想到 RLHF、DPO 或者最近常见的 RFT：给模型一个 prompt，让它生成答案，然后用偏好数据、规则 verifier 或 reward model 去优化。
+
+这种做法确实能提升回答质量、指令遵循和推理表现，但它和 Agent 系统之间还有一层差距。Agent 的关键不只是“回答得更好”，而是它要能在一个不完全可见、会变化、可能出错的环境里持续行动。
+
+论文把这个差距说得比较清楚：
+
+- 传统 LLM RL 通常面向单轮输出
+- Agentic RL 面向多步交互和长期回报
+- 传统训练里 action 往往是 token 或完整 response
+- Agent 场景里的 action 还包括工具调用、检索、记忆写入、环境操作
+- 传统奖励更容易落在最终答案上
+- Agent 奖励需要处理过程反馈、延迟反馈和 credit assignment
+
+所以这篇文章不是在介绍某一个新算法，而是在建立一个坐标系：当 LLM 变成 Agent 时，RL 到底应该优化什么。
+
+## 从 PBRFT 到 Agentic RL
+
+论文先把传统 Preference-Based Reinforcement Fine-Tuning 简化成一个单步 MDP。这个说法很有帮助，因为它解释了为什么很多 RLHF/RFT 方法看起来像 RL，但还没有真正进入 Agentic 的问题域。
+
+在 PBRFT 里，episode 通常长这样：
+
+```text
+prompt -> response -> reward -> update
+```
+
+而在 Agentic RL 里，episode 更接近：
+
+```text
+observation -> policy -> action -> environment -> new observation -> reward -> ...
+```
+
+这个差别意味着模型的学习目标变了。它不只是要让单次 response 得分更高，而是要让整条轨迹的累计回报更高。
+
+| 维度 | PBRFT / 传统 LLM RL | Agentic RL |
+| --- | --- | --- |
+| 模型角色 | 条件文本生成器 | 可学习的决策 policy |
+| 时间结构 | 单步或近似单步 | 多步、长 horizon |
+| 状态 | prompt 或静态上下文 | 环境状态、历史观察、记忆 |
+| 动作 | 生成文本 | 生成文本 + 调用工具 + 操作环境 |
+| 反馈 | 偏好、正确性、最终分数 | 过程奖励、环境反馈、任务完成度 |
+| 难点 | reward model、偏好噪声 | credit assignment、环境设计、安全边界 |
+
+论文里有一个很关键的动作空间表达：
+
+$$
+A_{\text{agent}} = A_{\text{text}} \cup A_{\text{action}}
+$$
+
+这意味着 Agent 的动作不仅是“说什么”，还包括“做什么”。例如搜索、调用代码解释器、点击网页按钮、写入 memory、运行测试、修改文件，都是 action。
+
+传统 PBRFT 的目标可以理解成：
+
+$$
+J_{\text{trad}}(\theta)=\mathbb{E}_{a\sim\pi_\theta}[r(a)]
+$$
+
+而 Agentic RL 的目标变成：
+
+$$
+J_{\text{agent}}(\theta)=
+\mathbb{E}_{\tau\sim\pi_\theta}
+\left[
+\sum_{t=0}^{T-1}\gamma^tR_{\text{agent}}(s_t,a_t)
+\right]
+$$
+
+这个公式背后的工程含义是：Agent 的好坏不能只看最后一句话，而要看它是否用合理成本、合理风险、合理步骤完成了任务。
+
+<Mermaid title="From LLM RL to Agentic RL" chart={`
+flowchart LR
+  subgraph A["PBRFT / traditional LLM RL"]
+    P["Prompt"] --> R["One-shot response"]
+    R --> S["Preference or verifier reward"]
+    S --> U["Update response policy"]
+  end
+
+  subgraph B["Agentic RL"]
+    O["Observation"] --> PI["LLM policy"]
+    PI --> ACT{"Text or action"}
+    ACT -->|text| OUT["Language output"]
+    ACT -->|tool / env action| ENV["Dynamic environment"]
+    ENV --> FB["Observation + reward"]
+    FB --> PI
+    PI --> TRAJ["Long-horizon behavior"]
+  end
+`} />
+
+## 为什么 Agentic RL 更像 POMDP
+
+论文用 POMDP 来描述 Agentic RL，我觉得这个视角比“Agent = LLM + Tools”更准确。
+
+POMDP 的关键是 partial observability：Agent 永远看不到完整世界，只能看到一部分 observation。这个设定非常贴近真实系统。
+
+比如一个代码 Agent：
+
+- 它看到的是当前文件片段、测试输出、错误日志
+- 它看不到用户真正的隐含需求
+- 它也不一定知道整个系统的所有副作用
+- 它每次修改代码后，环境状态都会变化
+
+再比如一个研究 Agent：
+
+- 它看到的是搜索结果、论文摘要、网页片段
+- 它不知道外部信息是否完整
+- 它需要决定继续检索、改写 query、阅读 PDF，还是开始总结
+
+所以 Agentic RL 的难点不是“给模型一个更大的 prompt”就能解决的。它需要在不完整观察下做决策，并且要承担动作的后果。
+
+<Note type="hint" title="工程判断">
+把 Agent 看成 POMDP 以后，很多问题会变得更清楚：context builder 是 observation 设计，tool router 是 action selection，memory 是 belief state 的近似，budget 是 horizon 和 cost 的约束。
+</Note>
+
+## 能力视角：RL 优化的不是模块，而是行为
+
+论文的第三部分按 Agent 能力来组织：planning、tool use、memory、self-improvement、reasoning、perception 等。
+
+我觉得最值得记住的一点是：RL 不是简单地给这些模块加一个训练步骤，而是让它们从静态规则变成可以被反馈优化的行为策略。
+
+### Planning
+
+传统 Agent 里的 planning 很容易变成 prompt pattern：让模型先列计划，再执行。
+
+但现实任务里，初始计划经常不可靠。环境反馈会改变任务状态，工具调用也可能失败。Agentic RL 关心的是模型能不能在长期反馈下学会更好的规划策略：
+
+- 什么时候先规划，什么时候边做边改
+- 什么时候继续探索，什么时候停止
+- 哪些中间步骤值得展开
+- 遇到失败时是重试、换工具，还是回退到上一步
+
+这和我上一篇写的 context / tool routing 可以连起来：planning 不是一段静态文本，而是循环里的策略选择。
+
+### Tool Use
+
+Tool use 是 Agentic RL 最有工程现实感的方向。
+
+早期工具调用常靠 prompt、ReAct 或 SFT 学出来。问题是：模型可能知道某个工具怎么调用，但不知道什么时候该用、什么时候不该用、失败后怎么恢复。
+
+Agentic RL 的目标更进一步：让模型通过环境反馈学习工具使用策略。
+
+例如在代码任务里，动作可以是：
+
+- 读取文件
+- 修改代码
+- 运行测试
+- 根据测试失败信息继续定位
+
+reward 可以来自单元测试、编译结果、lint、benchmark 或任务是否完成。这类反馈比纯文本偏好更可验证，因此也更适合做 Agentic RL。
+
+### Memory
+
+论文把 memory 也放进 Agentic RL，我觉得很关键。
+
+很多系统里的 memory 只是“存下来再检索”，但 Agent 场景里的 memory 更像一种 action：
+
+- 什么时候写入
+- 写入什么粒度
+- 什么时候更新
+- 什么时候遗忘
+- 当前任务应该检索哪段历史
+
+如果 memory 写得太多，Agent 会被噪声拖慢；如果写得太少，又无法跨任务积累经验。RL 可以把 memory 操作变成可优化的策略，而不是固定规则。
+
+### Reasoning 和 Self-Improvement
+
+这部分可以理解为：模型不仅要会推理，还要会根据反馈修正自己的推理过程。
+
+在数学、代码、检索任务里，最终答案的对错有时可以验证，但过程未必稳定。只用 outcome reward 可能会鼓励模型走捷径，甚至学到表面正确但不可靠的模式。
+
+所以论文反复提到 process-level reward、verifier、self-reflection、environment feedback。它们本质上都是在尝试把“长链条推理”拆成更可学习、更可控的反馈。
+
+## 任务视角：哪些场景最适合 Agentic RL
+
+论文还从应用任务角度整理了 Agentic RL 的落点。我比较关注这几个方向。
+
+### Search / Research Agent
+
+Research Agent 不是一次搜索就结束，而是一个循环：
+
+```text
+生成 query -> 搜索 -> 阅读结果 -> 判断缺口 -> 改写 query -> 综合结论
+```
+
+这里的 RL 可以优化 query 生成、搜索策略、阅读顺序和何时停止。难点是 reward 很难设计：一篇报告是否“好”，不只取决于有没有找到某个答案，还取决于覆盖度、可信度和引用质量。
+
+### Code / SWE Agent
+
+代码任务可能是最适合 Agentic RL 的场景之一，因为它有天然 verifier：
+
+- 编译是否通过
+- 单元测试是否通过
+- 修改是否引入回归
+- issue 是否被解决
+
+这类任务能把“模型是否真的完成任务”转化成更客观的环境反馈。论文里也提到 SWE-bench、TheAgentCompany、Debug-Gym 等环境，这些都在把代码 Agent 训练成真正能和开发环境交互的系统。
+
+### Math Agent
+
+数学任务分成 informal math 和 formal math。
+
+informal math 常见做法是结合过程奖励、最终答案奖励和工具调用，例如让模型使用 Python 检查计算。formal math 则可以借助 Lean、Coq 这类 proof assistant，把 tactic 是否有效、证明是否完成变成 verifier。
+
+这说明 Agentic RL 不一定要依赖“人觉得好不好”，只要环境能提供可靠反馈，就有机会形成训练闭环。
+
+### GUI / Web / Embodied Agent
+
+GUI 和 Web Agent 更接近真实用户操作：点击、输入、跳转、观察页面变化。这里的问题是环境更复杂，动作副作用更强，安全边界也更难。
+
+Embodied Agent 则更进一步，需要在物理或仿真环境里感知和行动。它和网页/代码 Agent 的共同难点是：动作不是一句文本，而是真正改变环境状态。
+
+## 环境和 Framework 是关键基础设施
+
+读这篇 survey 时，我最大的感受之一是：Agentic RL 不只是算法问题，更是环境工程问题。
+
+如果没有可交互环境，就没有多步轨迹；没有可靠 reward，就很难训练；没有可复现实验框架，就无法比较不同方法。
+
+论文整理了不少环境和框架，可以按用途粗略记：
+
+| 类型 | 代表例子 | 适合研究的问题 |
+| --- | --- | --- |
+| Web / GUI | WebArena、VisualWebArena、OSWorld、AndroidWorld | 网页浏览、桌面操作、跨页面任务 |
+| Code / SWE | SWE-bench、Debug-Gym、R2E-Gym、TheAgentCompany | 代码修复、测试反馈、真实工程任务 |
+| General Agent | AgentGym、AgentBench | 多任务 Agent 训练与评估 |
+| Domain-specific | ScienceWorld、MLE-Bench、MedAgentGym | 科学、机器学习、医疗等专门环境 |
+| RL Framework | Verifiers、Agent Lightning、VerlTool、SkyRL-v0 | rollout、reward、训练管线和工具集成 |
+
+这也解释了为什么很多 Agent 系统看起来“demo 很强，训练很难”：真正稀缺的不是再写一个 loop，而是可扩展、可验证、低成本、安全的交互环境。
+
+<Note type="warning" title="实践风险">
+Agentic RL 的 reward 一旦设计错，模型不会“变聪明”，而是会更系统地利用错误奖励。工具权限、沙箱、日志回放和人类确认不是附加功能，而是训练和部署的前提。
+</Note>
+
+## 我理解的几个开放问题
+
+这篇 survey 的后半部分讨论了不少挑战。对我来说，最值得持续关注的是这几个。
+
+### 1. Credit Assignment
+
+如果一个 Agent 经过 20 步才完成任务，最后成功或失败到底应该归因到哪一步？
+
+是 query 写得不好，还是工具选错了？是 memory 写入污染了上下文，还是最后一步总结遗漏了关键事实？
+
+这就是长 horizon Agent 的核心难点。只看最终 reward 太粗，过程 reward 又容易引入人为偏见和奖励黑客。
+
+### 2. Reward Design
+
+代码和数学任务相对容易，因为 verifier 明确。研究报告、产品分析、GUI 操作、开放式任务就难得多。
+
+一个实用方向可能是混合 reward：
+
+$$
+R = \lambda_o R_{\text{outcome}} +
+\lambda_p R_{\text{process}} -
+\lambda_c C_{\text{cost}} -
+\lambda_r C_{\text{risk}}
+$$
+
+这个公式不是论文里的固定实现，而是我自己的工程化理解：Agent 不应该只追求完成任务，还要考虑过程质量、成本和风险。
+
+### 3. Tool 和 Memory 的安全边界
+
+Agentic RL 会鼓励模型更主动地使用工具和记忆，但这也会放大风险。
+
+比如：
+
+- 工具调用可能泄露敏感信息
+- memory 可能长期保存错误结论
+- 搜索结果可能被 prompt injection 污染
+- 文件写入、邮件发送、数据库操作都有真实副作用
+
+所以 Agentic RL 不能只讨论能力提升，也要讨论权限系统、沙箱、审计日志和回滚机制。
+
+### 4. RL 到底是在激发能力，还是创造新能力
+
+论文提到一个很有意思的争论：RL 是在放大模型已有能力，还是能让模型学到新的计算方式？
+
+我的暂时理解是：两者可能都存在，但取决于任务和反馈。
+
+如果任务只需要模型把已有知识组织得更好，RL 更像能力激发。如果任务有清晰 verifier、可探索空间和足够长的训练轨迹，RL 可能真的会让模型形成新的行为策略。
+
+## 对我后续学习 Agentic AI 的影响
+
+读完这篇 survey 后，我会把 Agentic AI 的学习路线稍微调整一下。
+
+之前我更关注：
+
+- Agent 架构怎么搭
+- 工具调用怎么设计
+- context 怎么管理
+- workflow 和 agent 怎么区分
+
+现在我会额外关注：
+
+- 如何构造可验证的环境
+- 如何记录和回放 agent trajectory
+- 如何定义过程奖励和最终奖励
+- 如何把 memory / tool use / planning 变成可评估动作
+- 如何在训练和部署里同时处理能力、安全和成本
+
+换句话说，Agentic RL 把 Agent 从“一个会循环调用工具的应用”推进到“一个可以通过环境反馈持续学习的决策系统”。
+
+## 小结
+
+这篇 survey 最有价值的地方不是列了多少论文，而是把 Agentic RL 的问题边界讲清楚了。
+
+我现在会这样理解：
+
+- LLM RL 主要优化回答
+- LLM Agent 主要组织行动
+- Agentic RL 试图优化行动策略
+
+它关注的不再是某个 prompt 下的一次输出，而是模型在复杂环境中的长期行为：如何观察、如何规划、如何调用工具、如何使用记忆、如何从失败中调整。
+
+这也是我觉得它值得放进 Agentic AI 系列的原因。因为如果未来 Agent 真要从 demo 走向可靠系统，核心问题迟早会从“能不能调用工具”变成“能不能在反馈中学会更好地行动”。
