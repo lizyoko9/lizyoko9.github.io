@@ -1,48 +1,75 @@
 ---
 import Search from './Search.astro';
+
+interface Props {
+    /** essay：随笔页的墨色安静版顶栏（去蓝、去底色、隐藏搜索） */
+    tone?: 'default' | 'essay';
+}
+
+const { tone = 'default' } = Astro.props;
+const quiet = tone === 'essay';
 const currentPath = Astro.url.pathname;
+
+const navLink = (active: boolean) => `px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hidden md:block ${
+    quiet
+        ? active
+            ? 'text-slate-900 dark:text-slate-100'
+            : 'text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+        : active
+            ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/50'
+            : 'text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+}`;
 ---
 
-<header id="site-header" class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/60 dark:border-slate-800/60 transition-all duration-300">
+<header
+    id="site-header"
+    data-tone={tone}
+    class={`sticky top-0 z-40 border-b transition-all duration-300 ${
+        quiet
+            ? 'bg-slate-50/85 dark:bg-slate-950/85 border-slate-200/50 dark:border-slate-800/50'
+            : 'bg-white/80 dark:bg-slate-900/80 border-slate-200/60 dark:border-slate-800/60'
+    }`}
+>
     <nav class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <!-- Logo -->
         <div class="flex items-center shrink-0 mr-4">
-            <a href="/" class="text-xl font-bold font-mono text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 transition-colors group flex items-center gap-1">
+            <a href="/" class={`text-xl font-bold font-mono transition-colors group flex items-center gap-1 ${
+                quiet
+                    ? 'text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-100'
+                    : 'text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300'
+            }`}>
                 <span class="group-hover:rotate-[-8deg] transition-transform duration-300 inline-block">&lt;</span>
                 Lizlog
                 <span class="group-hover:rotate-[8deg] transition-transform duration-300 inline-block">/&gt;</span>
             </a>
         </div>
 
-        <!-- 搜索 -->
-        <div class="flex-1 max-w-md mx-4 hidden sm:block">
-            <Search />
-        </div>
+        <!-- 搜索（随笔页不放搜索框，保持安静） -->
+        {!quiet && (
+            <div class="flex-1 max-w-md mx-4 hidden sm:block">
+                <Search />
+            </div>
+        )}
 
         <!-- 导航链接 -->
         <div class="flex items-center space-x-1 shrink-0">
-            <a href="/" class={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                currentPath === '/' || currentPath.startsWith('/?')
-                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/50'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-            } hidden md:block`}>
+            <a href="/" class={navLink(currentPath === '/' || currentPath.startsWith('/?'))}>
                 首页
             </a>
-            <a href="/blog" class={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                currentPath.startsWith('/blog')
-                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/50'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-            } hidden md:block`}>
+            <a href="/blog" class={navLink(currentPath.startsWith('/blog'))}>
                 文章
             </a>
-            <a href="/resume" class={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                currentPath.startsWith('/resume')
-                    ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/50'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-            } hidden md:block`}>
+            <a href="/essays" class={navLink(currentPath.startsWith('/essays'))}>
+                随笔
+            </a>
+            <a href="/resume" class={navLink(currentPath.startsWith('/resume'))}>
                 简历
             </a>
-            <a href="https://github.com/lizyoko9" target="_blank" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 hidden md:inline-flex items-center gap-1">
+            <a href="https://github.com/lizyoko9" target="_blank" class={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hidden md:inline-flex items-center gap-1 ${
+                quiet
+                    ? 'text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}>
                 GitHub
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             </a>
@@ -59,15 +86,26 @@ const currentPath = Astro.url.pathname;
 <!-- 滚动玻璃效果 -->
 <script>
     const header = document.getElementById('site-header');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 10) {
-            header.classList.add('backdrop-blur-lg', 'bg-white/70', 'dark:bg-slate-900/70');
-            header.classList.remove('bg-white/80', 'dark:bg-slate-900/80');
-        } else {
-            header.classList.remove('backdrop-blur-lg', 'bg-white/70', 'dark:bg-slate-900/70');
-            header.classList.add('bg-white/80', 'dark:bg-slate-900/80');
-        }
-    });
+
+    if (header) {
+        const quiet = header.dataset.tone === 'essay';
+        const atTop = quiet
+            ? ['bg-slate-50/85', 'dark:bg-slate-950/85']
+            : ['bg-white/80', 'dark:bg-slate-900/80'];
+        const scrolled = quiet
+            ? ['backdrop-blur-lg', 'bg-slate-50/70', 'dark:bg-slate-950/70']
+            : ['backdrop-blur-lg', 'bg-white/70', 'dark:bg-slate-900/70'];
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) {
+                header.classList.add(...scrolled);
+                header.classList.remove(...atTop);
+            } else {
+                header.classList.remove(...scrolled);
+                header.classList.add(...atTop);
+            }
+        });
+    }
 </script>
 
 <script is:inline>

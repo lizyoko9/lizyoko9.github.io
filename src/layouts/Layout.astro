@@ -14,9 +14,11 @@ interface Props {
 	title: string;
     description?: string;
     wide?: boolean;
+    /** essay：随笔页统一使用墨色安静版顶栏/页脚 */
+    tone?: 'default' | 'essay';
 }
 
-const { title, description = 'A programmer blog', wide = false } = Astro.props;
+const { title, description = 'A programmer blog', wide = false, tone = 'default' } = Astro.props;
 ---
 
 <!doctype html>
@@ -82,15 +84,27 @@ const { title, description = 'A programmer blog', wide = false } = Astro.props;
 				</svg>
 			</div>
 		</div>
-		<Header />
+		<Header tone={tone} />
+		<script is:inline>
+			// 致坂本龙一（1952–2023）—— 给打开控制台的人
+			console.log(
+				'%cArs longa, vita brevis.%c\n人生朝露，艺术千秋 —— 坂本龍一 1952–2023',
+				'font-style: italic; font-size: 13px; color: #94a3b8;',
+				'font-size: 11px; color: #64748b;'
+			);
+		</script>
 		<main class={`flex-grow w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 ${wide ? 'max-w-6xl xl:max-w-[90rem]' : 'max-w-4xl'}`}>
 			<slot />
 		</main>
-		<Footer />
+		<Footer tone={tone} />
 		<button
 			id="back-to-top"
 			aria-label="返回顶部"
-			class="fixed bottom-6 right-6 z-50 p-2.5 rounded-full bg-primary-600 text-white shadow-lg opacity-0 pointer-events-none transition-all duration-300 hover:bg-primary-700 hover:shadow-xl dark:bg-primary-500 dark:hover:bg-primary-400"
+			class={`fixed bottom-6 right-6 z-50 p-2.5 rounded-full shadow-lg opacity-0 pointer-events-none transition-all duration-300 ${
+				tone === 'essay'
+					? 'bg-slate-700 text-slate-50 hover:bg-slate-900 dark:bg-slate-300 dark:text-slate-900 dark:hover:bg-slate-100'
+					: 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-xl dark:bg-primary-500 dark:hover:bg-primary-400'
+			}`}
 		>
 			<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
 		</button>

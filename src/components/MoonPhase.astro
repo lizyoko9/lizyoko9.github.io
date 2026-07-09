@@ -1,0 +1,66 @@
+---
+/**
+ * 页脚的一枚当前月相 —— 全站唯一随时间流逝而变化的元素。
+ * 纯 SVG + 少量行内脚本计算，无任何依赖。
+ * 致意《我还能看到多少次满月升起》。
+ */
+---
+
+<span
+	class="moon-phase inline-flex text-slate-300 dark:text-slate-600"
+	data-moon
+	role="img"
+	aria-label="今晚的月相"
+	title="今晚的月相"
+>
+	<svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+		<circle cx="10" cy="10" r="8" fill="currentColor" opacity="0.35" />
+		<path d="" fill="currentColor" data-moon-lit />
+	</svg>
+</span>
+
+<script>
+	// 以 2000-01-06 18:14 UTC（已知新月）为纪元推算月龄
+	const SYNODIC = 29.530588853;
+	const NEW_MOON_EPOCH = Date.UTC(2000, 0, 6, 18, 14);
+
+	const el = document.querySelector<HTMLElement>('[data-moon]');
+	const lit = el?.querySelector<SVGPathElement>('[data-moon-lit]');
+
+	if (el && lit) {
+		const days = (Date.now() - NEW_MOON_EPOCH) / 86400000;
+		const age = ((days % SYNODIC) + SYNODIC) % SYNODIC;
+		const phase = age / SYNODIC; // 0 新月 → 0.5 满月 → 1 新月
+
+		const cx = 10;
+		const r = 8;
+		const top = `${cx} ${cx - r}`;
+		const bottom = `${cx} ${cx + r}`;
+		const cos = Math.cos(2 * Math.PI * phase);
+		const waxing = phase <= 0.5; // 上半月亮面在右，下半月在左
+		const rx = Math.abs(cos) * r; // 明暗交界线（晨昏线）的椭圆半径
+
+		const outerSweep = waxing ? 1 : 0;
+		const termSweep = (cos > 0) === waxing ? 0 : 1;
+		lit.setAttribute(
+			'd',
+			`M ${top} A ${r} ${r} 0 0 ${outerSweep} ${bottom} A ${rx} ${r} 0 0 ${termSweep} ${top} Z`
+		);
+
+		const names: Array<[number, string]> = [
+			[1.0, '新月'],
+			[6.4, '娥眉月'],
+			[8.4, '上弦月'],
+			[13.4, '盈凸月'],
+			[16.1, '满月'],
+			[21.1, '亏凸月'],
+			[23.1, '下弦月'],
+			[28.5, '残月'],
+			[Infinity, '新月'],
+		];
+		const name = names.find(([limit]) => age < limit)![1];
+		const label = `${name} · 月龄 ${age.toFixed(1)} —— 我还能看到多少次满月升起？`;
+		el.setAttribute('title', label);
+		el.setAttribute('aria-label', label);
+	}
+</script>

@@ -10,6 +10,8 @@ export default {
 				mono: ['Sometype Mono', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
 				// 展示字体：得意黑（标题/站点名）
 				display: ['Smiley Sans', 'system-ui', 'sans-serif'],
+				// 宋体：随笔正文与页脚铭文（Noto Serif SC 仅在随笔页加载，其余场合回退系统宋体）
+				serif: ['Noto Serif SC', 'Songti SC', 'STSong', 'Source Han Serif SC', 'SimSun', 'serif'],
 			},
 			colors: {
 				// 清爽蓝色系 — 用于主按钮、链接和导航状态
