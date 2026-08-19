@@ -8,7 +8,7 @@ tags:
 import Note from '/src/components/Note.astro';
 import Mermaid from '/src/components/Mermaid.astro';
 
-> 这篇 survey 对我的启发是：Agentic RL 不是“再用 RL 把回答调好一点”，而是把 LLM 放进一个有状态、有动作、有反馈的环境里，让它学习如何长期推进任务。
+> Insights ：Agentic RL 不是“再用 RL 把回答调好一点”，而是把 LLM 放进一个有状态、有动作、有反馈的环境里，让它学习如何长期推进任务。
 
 ## TLDR
 
@@ -18,8 +18,6 @@ import Mermaid from '/src/components/Mermaid.astro';
 - LLM Agent：让模型具备规划、工具调用、记忆、自我修正和环境交互能力
 
 它提出的核心视角是：传统 LLM RL 更像是在一个单步任务里优化回答质量，而 Agentic RL 则把 LLM 看成一个在动态环境中行动的 policy。模型不只是生成一段文本，而是在多轮循环里观察、决策、行动、获得奖励，再继续调整下一步。
-
-如果用一句话概括：
 
 <Note type="info" title="一句话理解">
 PBRFT 优化的是一次回答；Agentic RL 优化的是一段行为轨迹。
@@ -31,7 +29,7 @@ PBRFT 优化的是一次回答；Agentic RL 优化的是一段行为轨迹。
 
 我之前理解 RL + LLM，更多会想到 RLHF、DPO 或者最近常见的 RFT：给模型一个 prompt，让它生成答案，然后用偏好数据、规则 verifier 或 reward model 去优化。
 
-这种做法确实能提升回答质量、指令遵循和推理表现，但它和 Agent 系统之间还有一层差距。Agent 的关键不只是“回答得更好”，而是它要能在一个不完全可见、会变化、可能出错的环境里持续行动。
+这种做法确实能提升回答质量、指令遵循和推理表现，但它和 Agent 系统之间还有一层差距。Agent 的关键不只是“回答得更好”，而是它要能**在一个不完全可见、会变化、可能出错的环境里持续行动**。
 
 论文把这个差距说得比较清楚：
 
@@ -308,18 +306,9 @@ Agentic RL 会鼓励模型更主动地使用工具和记忆，但这也会放大
 
 如果任务只需要模型把已有知识组织得更好，RL 更像能力激发。如果任务有清晰 verifier、可探索空间和足够长的训练轨迹，RL 可能真的会让模型形成新的行为策略。
 
-## 对我后续学习 Agentic AI 的影响
+## 思考
 
-读完这篇 survey 后，我会把 Agentic AI 的学习路线稍微调整一下。
-
-之前我更关注：
-
-- Agent 架构怎么搭
-- 工具调用怎么设计
-- context 怎么管理
-- workflow 和 agent 怎么区分
-
-现在我会额外关注：
+针对Agentic AI，可以额外关注的几个点：
 
 - 如何构造可验证的环境
 - 如何记录和回放 agent trajectory
@@ -331,14 +320,14 @@ Agentic RL 会鼓励模型更主动地使用工具和记忆，但这也会放大
 
 ## 小结
 
-这篇 survey 最有价值的地方不是列了多少论文，而是把 Agentic RL 的问题边界讲清楚了。
+这篇 survey 最有价值的地方是把 Agentic RL 的问题边界讲清楚了。
 
-我现在会这样理解：
+可以这样理解：
 
-- LLM RL 主要优化回答
-- LLM Agent 主要组织行动
+- LLM RL 主要优化回答质量
+- LLM Agent 主要规划行动
 - Agentic RL 试图优化行动策略
 
 它关注的不再是某个 prompt 下的一次输出，而是模型在复杂环境中的长期行为：如何观察、如何规划、如何调用工具、如何使用记忆、如何从失败中调整。
 
-这也是我觉得它值得放进 Agentic AI 系列的原因。因为如果未来 Agent 真要从 demo 走向可靠系统，核心问题迟早会从“能不能调用工具”变成“能不能在反馈中学会更好地行动”。
+如果未来 Agent 真要从 demo 走向可靠系统，核心问题迟早会从“能不能调用工具”变成“能不能在反馈中学会更好地行动”。
