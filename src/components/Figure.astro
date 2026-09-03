@@ -1,0 +1,130 @@
+---
+interface Props {
+  /** 图注正文。省略则只渲染画框，不渲染 caption。 */
+  caption?: string;
+  /** 覆盖自动编号，例如 "图 3-1" 或 "Fig. 2"。省略则由 CSS counter 自动编号。 */
+  label?: string;
+  /** 来源 / 出处，渲染在图注后面的小字。 */
+  source?: string;
+  /** 画框最大宽度，例如 "36rem"。省略则占满正文宽度。 */
+  width?: string;
+  /** 关闭画框背景与边框，适合本身自带白底的截图。 */
+  bare?: boolean;
+}
+
+const { caption, label, source, width, bare = false } = Astro.props;
+---
+
+<figure
+  class:list={['figure-block', 'not-prose', 'my-8', { 'is-bare': bare }]}
+  style={width ? `max-width:${width};margin-inline:auto;` : undefined}
+>
+  <div class="figure-frame">
+    <slot />
+  </div>
+
+  {caption && (
+    <figcaption class:list={['figure-caption', { 'has-label': Boolean(label) }]}>
+      {label && <span class="figure-label">{label}</span>}
+      <span class="figure-text">{caption}</span>
+      {source && <span class="figure-source">{source}</span>}
+    </figcaption>
+  )}
+</figure>
+
+<style is:global>
+  /* 每篇文章内的图片独立编号 */
+  article {
+    counter-reset: figure-counter;
+  }
+</style>
+
+<style>
+  .figure-frame {
+    overflow-x: auto;
+    padding: 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    border-radius: 0.75rem;
+    background:
+      linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(6, 182, 212, 0.04)),
+      rgba(255, 255, 255, 0.86);
+    box-shadow: 0 12px 30px -24px rgba(15, 23, 42, 0.35);
+  }
+
+  :global(.dark) .figure-frame {
+    border-color: rgba(30, 64, 175, 0.42);
+    background:
+      linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(6, 182, 212, 0.06)),
+      rgba(2, 6, 23, 0.82);
+    box-shadow: 0 16px 34px -26px rgba(0, 0, 0, 0.75);
+  }
+
+  .is-bare .figure-frame {
+    padding: 0;
+    border: none;
+    background: none;
+    box-shadow: none;
+  }
+
+  /* slot 里可能是 <img>、<Image>、<svg>，也可能被 MDX 包进 <p> */
+  .figure-frame :global(p) {
+    margin: 0;
+  }
+
+  .figure-frame :global(img),
+  .figure-frame :global(svg),
+  .figure-frame :global(video) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-inline: auto;
+    border-radius: 0.5rem;
+  }
+
+  .figure-caption {
+    margin-top: 0.85rem;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: #475569;
+    text-align: center;
+  }
+
+  :global(.dark) .figure-caption {
+    color: #94a3b8;
+  }
+
+  /* 无显式 label 时自动编号；有 label 时用给定的文字 */
+  .figure-caption:not(.has-label)::before {
+    counter-increment: figure-counter;
+    content: '图 ' counter(figure-counter);
+    margin-right: 0.4rem;
+    font-family: 'Sometype Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #2563eb;
+  }
+
+  .figure-label {
+    margin-right: 0.4rem;
+    font-family: 'Sometype Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #2563eb;
+  }
+
+  :global(.dark) .figure-caption:not(.has-label)::before,
+  :global(.dark) .figure-label {
+    color: #67e8f9;
+  }
+
+  .figure-source {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.72rem;
+    color: #94a3b8;
+  }
+
+  :global(.dark) .figure-source {
+    color: #64748b;
+  }
+</style>

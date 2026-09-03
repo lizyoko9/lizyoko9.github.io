@@ -1,0 +1,257 @@
+---
+import pseudocode from 'pseudocode';
+
+interface Props {
+  /** algorithmic 环境的 LaTeX 源码。 */
+  code: string;
+  /** 覆盖自动编号。省略时按本页出现顺序自动编号。 */
+  count?: number;
+  /** 标题前缀，默认 "算法"。 */
+  titlePrefix?: string;
+  /** 是否显示行号，默认 true。 */
+  lineNumber?: boolean;
+  /** 隐藏 end if / end for 之类的收尾行，默认 false。 */
+  noEnd?: boolean;
+  /** 给控制块画左侧缩进竖线，默认 false。 */
+  scopeLines?: boolean;
+  /** 控制块缩进量，例如 "1.2em"。 */
+  indentSize?: string;
+  /** 注释起止分隔符，默认 " // "。 */
+  commentDelimiter?: string;
+}
+
+const {
+  code,
+  count,
+  titlePrefix = '算法',
+  lineNumber = true,
+  noEnd = false,
+  scopeLines = false,
+  indentSize,
+  commentDelimiter,
+} = Astro.props;
+
+const source = code.trim();
+
+// pseudocode.js 的 Renderer.captionCount 是模块级全局量，而 Astro 静态构建把所有页面
+// 渲染在同一个 Node 进程里，计数器会跨页面累加。因此每次渲染都显式传入 captionCount，
+// 用挂在 Astro.locals 上的每页计数器保证编号在每篇文章里从 1 开始。
+const resolveNumber = (): number => {
+  if (typeof count === 'number') return count;
+
+  try {
+    const locals = Astro.locals as Record<string, unknown>;
+    const next = ((locals.__algorithmCount as number | undefined) ?? 0) + 1;
+    locals.__algorithmCount = next;
+    return next;
+  } catch {
+    // locals 不可写时退回 1，编号可能重复但不影响正文
+    return 1;
+  }
+};
+
+const number = resolveNumber();
+
+const options = {
+  titlePrefix,
+  lineNumber,
+  noEnd,
+  scopeLines,
+  captionCount: number - 1,
+  ...(indentSize ? { indentSize } : {}),
+  ...(commentDelimiter !== undefined ? { commentDelimiter } : {}),
+};
+
+let markup = '';
+let renderError: string | null = null;
+
+try {
+  markup = pseudocode.renderToString(source, options);
+} catch (error) {
+  renderError = error instanceof Error ? error.message : String(error);
+  console.warn(`[Algorithm] 渲染失败：${renderError}\n${source}`);
+}
+---
+
+<figure class:list={['algorithm-figure', 'not-prose', 'my-8', { 'has-error': Boolean(renderError) }]}>
+  <div class="algorithm-frame">
+    {renderError ? (
+      <>
+        <p class="algorithm-error">algorithm 渲染失败：{renderError}</p>
+        <pre class="algorithm-source">{source}</pre>
+      </>
+    ) : (
+      <div class="algorithm-body" set:html={markup} />
+    )}
+  </div>
+</figure>
+
+<style>
+  .algorithm-frame {
+    overflow-x: auto;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    border-radius: 0.75rem;
+    background:
+      linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(6, 182, 212, 0.04)),
+      rgba(255, 255, 255, 0.86);
+    box-shadow: 0 12px 30px -24px rgba(15, 23, 42, 0.35);
+  }
+
+  :global(.dark) .algorithm-frame {
+    border-color: rgba(30, 64, 175, 0.42);
+    background:
+      linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(6, 182, 212, 0.06)),
+      rgba(2, 6, 23, 0.82);
+    box-shadow: 0 16px 34px -26px rgba(0, 0, 0, 0.75);
+  }
+
+  .algorithm-body {
+    min-width: min(34rem, 100%);
+  }
+
+  /* ---- 以下复刻 pseudocode.js 的结构样式 ----
+     没有直接 import pseudocode/build/pseudocode.min.css，因为那份文件会
+     @import 一份 CDN 上的 KaTeX 0.16.7（与本地 katex 0.17 冲突），
+     并且边框写死 #000，暗色模式下不可读。 */
+
+  .algorithm-body :global(.ps-root) {
+    font-family: KaTeX_Main, 'Times New Roman', Times, serif;
+    font-size: 0.95em;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :global(.dark) .algorithm-body :global(.ps-root) {
+    color: #e2e8f0;
+  }
+
+  .algorithm-body :global(.ps-algorithm) {
+    margin: 0;
+    border-top: 2px solid rgba(37, 99, 235, 0.55);
+    border-bottom: 2px solid rgba(37, 99, 235, 0.55);
+  }
+
+  .algorithm-body :global(.ps-algorithm.with-caption) > :global(.ps-line:first-child) {
+    padding-bottom: 0.35rem;
+    margin-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(37, 99, 235, 0.28);
+  }
+
+  :global(.dark) .algorithm-body :global(.ps-algorithm) {
+    border-top-color: rgba(103, 232, 249, 0.5);
+    border-bottom-color: rgba(103, 232, 249, 0.5);
+  }
+
+  :global(.dark) .algorithm-body :global(.ps-algorithm.with-caption) > :global(.ps-line:first-child) {
+    border-bottom-color: rgba(103, 232, 249, 0.3);
+  }
+
+  .algorithm-body :global(.ps-line) {
+    margin: 0;
+    padding: 0.1rem 0;
+    line-height: 1.5;
+  }
+
+  .algorithm-body :global(.katex) {
+    text-indent: 0;
+    font-size: 1em;
+  }
+
+  .algorithm-body :global(.ps-funcname) {
+    font-family: KaTeX_Main, 'Times New Roman', Times, serif;
+    font-weight: 400;
+    font-variant: small-caps;
+    font-style: normal;
+    text-transform: none;
+  }
+
+  .algorithm-body :global(.ps-keyword) {
+    font-family: KaTeX_Main, 'Times New Roman', Times, serif;
+    font-weight: 700;
+    font-variant: normal;
+    font-style: normal;
+    text-transform: none;
+    color: #2563eb;
+  }
+
+  :global(.dark) .algorithm-body :global(.ps-keyword) {
+    color: #67e8f9;
+  }
+
+  /* 标题行（"算法 1 XXX"）整行走正文色，只是加粗 */
+  .algorithm-body :global(.ps-algorithm.with-caption) > :global(.ps-line:first-child) :global(.ps-keyword) {
+    color: inherit;
+  }
+
+  .algorithm-body :global(.ps-comment) {
+    font-family: KaTeX_Main, 'Times New Roman', Times, serif;
+    font-weight: 400;
+    font-style: italic;
+    color: #64748b;
+  }
+
+  :global(.dark) .algorithm-body :global(.ps-comment) {
+    color: #94a3b8;
+  }
+
+  .algorithm-body :global(.ps-linenum) {
+    display: inline-block;
+    position: relative;
+    width: 1.6em;
+    padding-right: 0.3em;
+    font-family: 'Sometype Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72em;
+    line-height: 1em;
+    text-align: right;
+    color: #94a3b8;
+  }
+
+  :global(.dark) .algorithm-body :global(.ps-linenum) {
+    color: #64748b;
+  }
+
+  .algorithm-body :global(.ps-algorithmic.with-linenum) :global(.ps-line.ps-code) {
+    text-indent: -1.6em;
+  }
+
+  .algorithm-body :global(.ps-algorithmic.with-linenum) :global(.ps-line.ps-code) > :global(span) {
+    text-indent: 0;
+  }
+
+  .algorithm-body :global(.ps-algorithmic.with-scopelines) :global(div.ps-block) {
+    border-left-style: solid;
+    border-left-width: 0.1em;
+    border-left-color: rgba(148, 163, 184, 0.45);
+    padding-left: 0.6em;
+  }
+
+  .algorithm-body :global(.ps-algorithmic.with-scopelines) > :global(div.ps-block) {
+    border-left: none;
+  }
+
+  /* 渲染失败时的降级显示 */
+  .algorithm-error {
+    margin: 0 0 0.6rem;
+    font-family: 'Sometype Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.76rem;
+    color: #be123c;
+  }
+
+  :global(.dark) .algorithm-error {
+    color: #fda4af;
+  }
+
+  .algorithm-source {
+    margin: 0;
+    white-space: pre-wrap;
+    font-family: 'Sometype Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: #475569;
+  }
+
+  :global(.dark) .algorithm-source {
+    color: #94a3b8;
+  }
+</style>
