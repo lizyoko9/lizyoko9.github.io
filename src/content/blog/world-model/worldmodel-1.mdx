@@ -7,3 +7,14 @@ tags:
 ---
 import Note from '/src/components/Note.astro';
 
+
+import AlgoProbe from '/src/components/Algorithm.astro';
+
+<AlgoProbe code={String.raw`
+\begin{algorithm}
+\caption{PROBE}
+\begin{algorithmic}
+\STATE probe
+\end{algorithmic}
+\end{algorithm}
+`} />
