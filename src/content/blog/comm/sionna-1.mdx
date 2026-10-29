@@ -2,6 +2,7 @@
 title: 'Sionna 01: Introduction'
 description: 'NVIDIA推出的用于通信仿真的开源库'
 pubDate: '2026-05-14'
+updatedDate: '2026-10-29'
 tags:
   - Communication
 ---
@@ -11,7 +12,7 @@ NVIDIA推出了一个名为Sionna的开源库，用于通信仿真。Sionna提�
 支持各种通信系统的建模和仿真。它利用GPU加速技术，使得大规模仿真成为可能，适用于研究人
 员和工程师在无线通信领域的工作。
 
-近期Sionna发布了2.0版本，将底层框架的TensorFlow换到了PyTorch，特此记录一些个人的学习笔记。
+Sionna 2.0 将 PHY 和 SYS 从 TensorFlow 迁移到了 PyTorch，特此记录一些个人的学习笔记。
 
 ## 模块结构
 Sionna 2.0 由以下三个模块组成：
@@ -21,12 +22,25 @@ Sionna 2.0 由以下三个模块组成：
 - Sionna SYS：基于物理层抽象的系统级仿真功能
 
 ## 底层框架
-Sionna PHY 和 Sionna SYS 基于 PyTorch 编写，而 Sionna RT 则构建于 Mitsuba 3 和 Dr.Jit 之上。这些框架均支持自动微分，
-可以对整个通信系统进行梯度反传，是梯度优化和机器学习（尤其是神经网络集成）的核心能力支撑。
+Sionna PHY 和 Sionna SYS 基于 PyTorch 编写，而 Sionna RT 则构建于 Mitsuba 3 和 Dr.Jit 之上。这些框架支持自动微分，便于把可学习模块接入通信链路；具体能否反传，仍要看所用组件和跨框架接口。
 值得注意的是，Sionna RT 的底层并未迁移到 PyTorch，而是继续依赖 Dr.Jit 这一专为渲染和物理仿真设计的 JIT 编译框架，
 以维持其极高的射线追踪性能。
+
 ## 环境要求
 Sionna PHY 和 Sionna SYS 要求 Python 3.11 及以上版本，以及 PyTorch 2.9 及以上版本，推荐在 Ubuntu 24.04 环境下运行。 
+
 ## Sionna Research Kit
 Sionna 还提供了 Sionna Research Kit（SRK），允许将训练好的 AI/ML 组件部署到真实的软件定义 5G NR 无线接入网络中，
 该套件基于 OpenAirInterface 项目，并以 NVIDIA DGX Spark 为算力支撑。
+
+## 三个模块怎么选？
+
+- 想看场景几何怎样影响传播，先看 **RT**。
+- 想比较接收机、编码或调制的 BER / BLER，先看 **PHY**。
+- 想研究多用户调度和资源分配，再看 **SYS**。
+
+入门可以先从“随机比特 → 调制 → AWGN → 判决 → BER”这条简单链路开始，再逐步加入衰落、编码和多天线。先把噪声功率与 Eb/N0 的定义对齐，比一开始搭复杂场景更容易排错。
+
+另外，RT 不使用 PyTorch 后端，不能因为 `torch` 能检测到 GPU，就认为 RT 的环境也配置好了。
+
+参考：[Sionna 文档](https://nvlabs.github.io/sionna/) / [安装说明](https://nvlabs.github.io/sionna/v2.2.0/installation.html)。

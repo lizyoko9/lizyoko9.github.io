@@ -2,6 +2,7 @@
 title: "CUDA Programming 1"
 description: "CUDA 编程基础"
 pubDate: "2026-02-16"
+updatedDate: '2026-10-29'
 tags:
   - CUDA
 ---
@@ -11,3 +12,39 @@ import Note from '/src/components/Note.astro';
 CUDA (Compute Unified Device Architecture) 是 NVIDIA 公司开发的并行计算平台和编程模型，它允许开发人员利用 
 NVIDIA GPU 的并行处理能力来加速计算密集型应用程序。其核心优势在于通过 GPU 编程，大幅提高了并行计算的效率和速
 度，特别适用于需要处理大规模数据的应用场景，如科学计算、机器学习、深度学习等。
+
+## 2. Host / Device / Kernel
+
+- **Host**：CPU 一侧，准备数据、申请显存、启动计算。
+- **Device**：GPU 一侧，执行并行任务。
+- **Kernel**：在 GPU 上运行的函数，用 `__global__` 声明。
+
+先用向量加法理解：CPU 上的 `for` 循环，是依次计算每个位置；GPU 上可以让一个线程负责一个位置。
+
+```cpp
+__global__ void vector_add(const float* a, const float* b, float* c, int n) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n) {
+        c[i] = a[i] + b[i];
+    }
+}
+
+// 假设 d_a、d_b、d_c 已分配显存，输入也已拷入。
+int threads = 256;
+int blocks = (n + threads - 1) / threads;
+vector_add<<<blocks, threads>>>(d_a, d_b, d_c, n);
+```
+
+## 3. Grid / Block / Thread
+
+- **Thread**：执行计算的线程，`threadIdx.x` 是块内编号。
+- **Block**：一组线程，`blockIdx.x` 是块编号，`blockDim.x` 是每块线程数。
+- **Grid**：一次 kernel 启动的全部 blocks。
+
+所以全局索引就是 `块编号 × 每块线程数 + 块内编号`。最后一个 block 可能多出线程，`i < n` 是为了防止越界。
+
+<Note type="hint" title="先记住两点">
+Kernel launch 通常是异步的，CPU 提交完任务不代表 GPU 已经算完。CUDA 需要支持它的 NVIDIA GPU；Mac 上的 MPS 是另一套后端。
+</Note>
+
+参考：[CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/intro-to-cuda-cpp.html)。

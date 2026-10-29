@@ -2,6 +2,7 @@
 title: "Tauri 02: IPC Intro"
 description: "Tauri 2 中的 IPC 通信实践与基础架构介绍。"
 pubDate: "2026-05-17"
+updatedDate: '2026-10-29'
 tags:
   - Tauri
   - WebDev
@@ -23,13 +24,14 @@ Tauri 应用本质上由两部分组成：
 在 Tauri 2 中，最常见的 IPC 方式包括：
 
 - `invoke`：前端主动调用 Rust command
-- 事件系统（Event System）：后端主动向前端发送通知
+- 事件系统（Event System）：前端或后端发送通知，不等待业务返回值
+- Channel：传递连续、有序的数据，如任务进度
 
 `invoke` 本质上是 WebView 与 Rust Runtime 之间的异步 RPC bridge。
 
 ---
 
-## 2. 最小可运行示例
+## 2. Command 调用示例
 
 ### 前端调用 Rust Command
 
@@ -49,3 +51,34 @@ greet();
 
 * "greet" 是 Rust 中注册的 command 名称
 * 第二个参数会自动序列化并发送给后端
+
+
+### Rust 端定义与注册
+
+在 Tauri 2 项目的 `src-tauri/src/lib.rs` 中：
+
+```rust
+#[tauri::command]
+fn greet(name: String) -> String {
+    format!("Hello, {name}!")
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![greet])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
+```
+
+已有项目只需把 `greet` 合并进原来的 handler 列表，保留其他初始化代码。这里容易漏的是：**定义 command 后，还要注册。** 前端调用需要在 Tauri 应用中执行，普通浏览器没有对应的 Rust runtime。
+
+## 3. 几个容易混淆的地方
+
+- `invoke` 返回 Promise；Rust 返回 `Result<T, E>` 时，`Ok` 对应成功，`Err` 对应 reject，前端用 `try/catch` 处理。
+- 参数默认按 camelCase 传递，例如 Rust 的 `user_name` 对应前端的 `userName`。
+- 事件监听是持续的，组件卸载时要调用 `listen` 返回的 `unlisten`，避免重复监听。
+- 前端 `await invoke(...)` 不代表 Rust 中的长计算不会阻塞，执行位置仍要单独考虑。
+
+参考：[Calling Rust](https://v2.tauri.app/develop/calling-rust/) / [Calling the Frontend](https://v2.tauri.app/develop/calling-frontend/)。
